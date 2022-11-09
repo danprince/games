@@ -561,7 +561,7 @@ interface Tween {
   duration: number;
   easing: Easing;
   callback(t: number): void;
-  resolve(): void;
+  done(): void;
 }
 
 type TweenableProps<T extends Record<any, any>> = {
@@ -613,7 +613,7 @@ export function tween<
       elapsed: 0,
       easing,
       callback,
-      resolve,
+      done: resolve,
     });
   });
 }
@@ -633,14 +633,14 @@ function _updateTweens() {
     }
 
     tween.callback(t);
+
+    if (tween.elapsed >= tween.duration) {
+      tween.done();
+    }
   }
 
   // Remove finished tweens
-  _tweens = _tweens.filter(tween => {
-    let done = tween.elapsed >= tween.duration;
-    if (done) tween.resolve();
-    return !done;
-  });
+  _tweens = _tweens.filter(tween => tween.elapsed < tween.duration);
 }
 
 /**
