@@ -90,15 +90,15 @@ test("measure", () => {
 
 test("writing text", async () => {
   await start({ width: 100, height: 100 });
-  write("hello world", 0, 10, "red", "black", "left");
-  write("hello world", 50, 40, "green", "black", "center");
-  write("hello world", 100, 70, "blue", "black", "right");
+  write("hello world", 0, 10, "red", "black");
+  write("hello world", 30, 40, "green", "black");
+  write("hello world", 60, 70, "blue", "black");
   expect(canvas).toMatchCanvasSnapshot();
 });
 
 test("writing text with cursor state", async () => {
   await start({ width: 100, height: 100 });
-  write("p1", 0, 10, "red", undefined, "left");
+  write("p1", 0, 10, "red");
   write("and p2");
   write("and p3");
   expect(canvas).toMatchCanvasSnapshot();

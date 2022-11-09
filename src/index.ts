@@ -53,7 +53,6 @@ export interface Font {
   glyphWidthsTable: Record<string, number>;
 }
 
-export type TextAlign = "left" | "center" | "right";
 export type Fill = string | CanvasGradient | CanvasPattern;
 
 interface DrawState {
@@ -64,7 +63,6 @@ interface DrawState {
   textX: number;
   textY: number;
   color: Fill;
-  textAlign: TextAlign;
   textShadowColor: Fill | undefined;
 }
 
@@ -92,7 +90,6 @@ let _state: DrawState = {
   color: "black",
   textX: 0,
   textY: 0,
-  textAlign: "left",
   textShadowColor: undefined,
 };
 
@@ -632,27 +629,19 @@ export function measure(text: string): Rectangle {
  * @param x
  * @param y
  * @param color
- * @param shadowColor
- * @param align
+ * @param shadow
  */
 export function write(
   text: string,
   x = _state.textX,
   y = _state.textY,
   color = _state.color,
-  shadowColor = _state.textShadowColor,
-  align = _state.textAlign,
+  shadow = _state.textShadowColor,
 ) {
-  if (align !== "left") {
-    let { w: width } = measure(text);
-    if (align === "center") x -= Math.floor(width / 2);
-    if (align === "right") x -= width;
-  }
-
   let currentX = x;
   let currentY = y;
   let image = _tint(color);
-  let imageShadow = _tint(shadowColor || "transparent");
+  let imageShadow = _tint(shadow || "transparent");
   let { lineHeight, glyphWidth, glyphHeight, glyphWidthsTable } = _font;
 
   for (let i = 0; i < text.length; i++) {
@@ -672,7 +661,7 @@ export function write(
     let dx = currentX;
     let dy = currentY;
 
-    if (shadowColor) {
+    if (shadow) {
       ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy, gw, gh);
       ctx.drawImage(imageShadow, sx, sy, gw, gh, dx, dy + 1, gw, gh);
       ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
@@ -694,18 +683,16 @@ export function write(
  * @param x
  * @param y
  * @param color
- * @param shadowColor
- * @param align
+ * @param shadow
  */
 export function writeLine(
   text: string,
   x = _state.textX,
   y = _state.textY,
   color = _state.color,
-  shadowColor = _state.textShadowColor,
-  align = _state.textAlign,
+  shadow = _state.textShadowColor,
 ) {
-  write(text, x, y, color, shadowColor, align);
+  write(text, x, y, color, shadow);
   _state.textX = x;
   _state.textY += _font.lineHeight;
 }
