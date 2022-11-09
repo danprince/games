@@ -1,0 +1,19 @@
+{
+  "name": "typescript-sprites",
+  "displayName": "TypeScript Sprites",
+  "description": "Exports a spritesheet to a TypeScript file",
+  "version": "0.0.0",
+  "scripts": {
+    "prebuild": "rm -rf *.aseprite-extension",
+    "build": "zip -r typescript-sprites.aseprite-extension .",
+    "postbuild": "open typescript-sprites.aseprite-extension"
+  },
+  "contributes": {
+    "keys": [
+      { "id": "typescript-sprites-keys", "path": "./typescript-sprites.aseprite-keys" }
+    ],
+    "scripts": [
+      { "path": "./typescript-sprites.lua" }
+    ]
+  }
+}
