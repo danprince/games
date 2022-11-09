@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig.common",
+  "compilerOptions": {
+    "paths": {
+      "@danprince/games": ["../src/index"]
+    }
+  }
+}
