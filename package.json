@@ -16,7 +16,7 @@
     "typecheck": "tsc && tsc -p examples && tsc -p tests",
     "preview": "vite preview",
     "test": "vitest",
-    "prepublishOnly": "yarn typecheck && yarn test && yarn build"
+    "prepublishOnly": "yarn typecheck && yarn test --run && yarn build"
   },
   "devDependencies": {
     "canvas": "^2.9.3",
