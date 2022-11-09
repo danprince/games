@@ -39,17 +39,35 @@ export interface Sprite extends Rectangle {
 }
 
 /**
- * A collection
+ * A keyed collection of sprites.
  */
 export interface SpriteSheet {
   [id: string]: Sprite;
 }
 
+/**
+ * A bitmap font in the format that the engine understands.
+ */
 export interface Font {
+  /**
+   * The url of the font's image.
+   */
   url: string;
+  /**
+   * The default width for each glyph, in pixels.
+   */
   glyphWidth: number;
+  /**
+   * The default height for each glyph, in pixels.
+   */
   glyphHeight: number;
+  /**
+   * The height for each line, in pixels.
+   */
   lineHeight: number;
+  /**
+   * Widths for glyphs with variable widths.
+   */
   glyphWidthsTable: Record<string, number>;
 }
 
@@ -75,6 +93,9 @@ let _font: Font = defaultFont;
 let _assets: Promise<any>[] = [];
 let _animationFrame: number;
 
+/**
+ * The pointer's current canvas position.
+ */
 let _pointer: Point = { x: NaN, y: NaN };
 let _down = new Set<InputButton>();
 let _pressed = new Set<InputButton>();
@@ -588,18 +609,16 @@ function _updateTweens() {
 /**
  * Draws a sprite at the given coordinates.
  */
-export function draw(sprite: Sprite, x: number, y: number) {
+export function draw(sprite: Sprite, x: number, y: number, w = sprite.w, h = sprite.h) {
   let { x: sx, y: sy, w: sw, h: sh } = sprite;
-  let dx = x;
-  let dy = y;
   let img = _image(sprite.url);
-  ctx.drawImage(img, sx, sy, sw, sh, dx, dy, sw, sh);
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
 }
 
 /**
  * Measure a string of text. Respects linebreaks, but does no wrapping.
  * @param text The text to measure.
- * @returns The required width and height in pixels
+ * @returns The rectangle size required to render this text.
  */
 export function measure(text: string): Rectangle {
   let { glyphWidth, lineHeight, glyphWidthsTable } = _font;
@@ -625,11 +644,12 @@ export function measure(text: string): Rectangle {
 }
 
 /**
- * @param text
- * @param x
- * @param y
- * @param color
- * @param shadow
+ * Writes text to the canvas using a bitmap font.
+ * @param text String of text to write.
+ * @param x X coordinate to start writing to.
+ * @param y Y coordinate to start writing from.
+ * @param color The text color/fill.
+ * @param shadow The text shadow color.
  */
 export function write(
   text: string,
@@ -679,11 +699,12 @@ export function write(
 }
 
 /**
- * @param text
- * @param x
- * @param y
- * @param color
- * @param shadow
+ * Writes a line of text to the canvas using a bitmap font.
+ * @param text String of text to write.
+ * @param x X coordinate to start writing to.
+ * @param y Y coordinate to start writing from.
+ * @param color The text color/fill.
+ * @param shadow The text shadow color.
  */
 export function writeLine(
   text: string,
