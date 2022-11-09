@@ -4,6 +4,9 @@
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "version": "0.0.1",
+  "license": "Unlicense",
+  "description": "A library for building tiny 2D games.",
+  "repository": "danprince/games",
   "files": [
     "dist"
   ],
