@@ -3,8 +3,10 @@
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
-  "version": "0.0.0",
-  "files": ["dist"],
+  "version": "0.0.1",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc",
