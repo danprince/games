@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta } from "../src";
+import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay } from "../src";
 import * as sprites from "./resources/sprites";
 
 // JSDOM doesn't support PointerEvent, so use MouseEvent when dispatching in
@@ -12,7 +12,7 @@ let PointerEvent = MouseEvent;
  * Advance to the next frame with the given time delta.
  * @param dt Milliseconds since last frame.
  */
-function frame(dt: number = 15) {
+async function frame(dt: number = 15) {
   __update__(dt);
 }
 
@@ -247,4 +247,15 @@ test("tweens", async () => {
   frame(500);
   expect(object.a).toBe(100);
   expect(promise).resolves.toBe(undefined);
+});
+
+test("delay", async () => {
+  let callback = vi.fn();
+  delay(100).then(callback);
+  await frame(50);
+  expect(callback).not.toHaveBeenCalled();
+  await frame(50);
+  expect(callback).toHaveBeenCalled();
+  await frame(50);
+  expect(callback).toHaveBeenCalledTimes(1);
 });

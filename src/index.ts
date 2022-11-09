@@ -311,6 +311,7 @@ function _loop(callback: () => void) {
 function _update(dt: number) {
   _delta = dt;
   _updateTweens();
+  _updateTimers();
   _updateInputs();
 }
 
@@ -491,6 +492,42 @@ export function global(localX: number, localY: number): Point {
 export function over(x: number, y: number, w: number, h: number): boolean {
   let { x: px, y: py } = local(_pointer.x, _pointer.y);
   return px >= x && py >= y && px < x + w && py < y + h;
+}
+
+interface Timer {
+  duration: number;
+  elapsed: number;
+  done(): void;
+}
+
+let _timers: Timer[] = [];
+
+/**
+ * Returns a promise that resolves after a certain amount of time has elapsed.
+ */
+export function delay(ms: number): Promise<void> {
+  return new Promise(done => {
+    _timers.push({
+      duration: ms,
+      elapsed: 0,
+      done,
+    });
+  });
+}
+
+/**
+ * Updates the state of internal timers.
+ */
+function _updateTimers() {
+  for (let timer of _timers) {
+    timer.elapsed += _delta;
+
+    if (timer.elapsed >= timer.duration) {
+      timer.done();
+    }
+  }
+
+  _timers = _timers.filter(timer => timer.elapsed < timer.duration);
 }
 
 /**
