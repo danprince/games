@@ -10,7 +10,8 @@
     "build": "vite build && tsc",
     "typecheck": "tsc && tsc -p examples && tsc -p tests",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "yarn typecheck && yarn test && yarn build"
   },
   "devDependencies": {
     "canvas": "^2.9.3",
