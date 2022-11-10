@@ -2,7 +2,7 @@
   "name": "typescript-sprites",
   "displayName": "TypeScript Sprites",
   "description": "Exports a spritesheet to a TypeScript file",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "scripts": {
     "prebuild": "rm -rf *.aseprite-extension",
     "build": "zip -r typescript-sprites.aseprite-extension .",
