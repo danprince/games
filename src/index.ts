@@ -746,7 +746,7 @@ export function draw9Slice(
   // usually re-drawn from the same sprites at the same size across multiple
   // frames, so we can cache them once rendered to significantly speed up
   // future calls.
-  let key = `@9slice:${sprite.url}:${sprite.x},${sprite.y}:${sprite.w},${sprite.h}:${w}:${h}`;
+  let key = `9slice:${sprite.url}/${sprite.x},${sprite.y}:${sprite.w},${sprite.h}/${w},${h}`;
   let canvas = _sprites[key];
 
   if (!canvas) {
