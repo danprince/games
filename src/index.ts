@@ -445,10 +445,16 @@ export function font(font: Font) {
  * Sets the cursor position (and optionally color) for {@link write} and
  * {@link writeLine}.
  */
-export function cursor(x: number, y: number, col?: Fill) {
+export function cursor(
+  x: number,
+  y: number,
+  col = _state.color,
+  shadow = _state.textShadowColor,
+) {
   _state.textX = x;
   _state.textY = y;
-  if (col) _state.color = col;
+  _state.color = col;
+  _state.textShadowColor = shadow;
 }
 
 /**
@@ -808,6 +814,22 @@ export function measure(text: string): Rectangle {
   return { x: 0, y: 0, w: boxWidth, h: boxHeight };
 }
 
+let _keys = new Map<any, number>();
+
+/**
+ * Creates a consistent cache friendly key for any object.
+ */
+function _key(obj: any) {
+  if (typeof obj !== "object") return obj;
+  if (!_keys.has(obj)) _keys.set(obj, _keys.size);
+  return _keys.get(obj);
+}
+
+/**
+ * Cache the final position of the cursor after rendering the text.
+ */
+let _textCursorCache: Record<string, Point> = {};
+
 /**
  * Writes text to the canvas using a bitmap font.
  * @param text String of text to write.
@@ -823,44 +845,61 @@ export function write(
   color = _state.color,
   shadow = _state.textShadowColor,
 ) {
-  let currentX = x;
-  let currentY = y;
-  let image = _tint(color);
-  let imageShadow = _tint(shadow || "transparent");
+  // Rendering text is an expensive operation (4 draw calls per char when
+  // using shadows), so we can significantly increase performance by
+  // caching the result, then rendering it directly in the future.
+  let key = `text:${_state.font.url}/${_key(color)}/${_key(shadow)}/${text}`;
+  let canvas = _sprites[key];
+  let cursor = _textCursorCache[key];
   let { lineHeight, glyphWidth, glyphHeight, glyphWidthsTable } = _state.font;
 
-  for (let i = 0; i < text.length; i++) {
-    let char = text[i];
+  if (!canvas) {
+    canvas = _sprites[key] = document.createElement("canvas");
+    cursor = _textCursorCache[key] = { x: 0, y: 0 };
 
-    if (char === "\n") {
-      currentX = x;
-      currentY += lineHeight;
-      continue;
+    let image = _tint(color);
+    let imageShadow = _tint(shadow || "transparent");
+
+    let bounds = measure(text);
+    canvas.width = bounds.w;
+    canvas.height = bounds.h;
+    let ctx = canvas.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+
+    for (let i = 0; i < text.length; i++) {
+      let char = text[i];
+
+      if (char === "\n") {
+        cursor.x = 0;
+        cursor.y += lineHeight;
+        continue;
+      }
+
+      let code = char.charCodeAt(0);
+      let gw = glyphWidth;
+      let gh = glyphHeight;
+      let sx = (code % 16) * gw;
+      let sy = ((code / 16) | 0) * gh;
+      let dx = cursor.x;
+      let dy = cursor.y;
+
+      if (shadow) {
+        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy, gw, gh);
+        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx, dy + 1, gw, gh);
+        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
+      }
+
+      // Glyphs below 32 are considered to be colored icons already.
+      let img = code < 32 ? _image(_state.font.url) : image;
+      ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
+
+      cursor.x += glyphWidthsTable[char] ?? gw;
     }
-
-    let code = char.charCodeAt(0);
-    let gw = glyphWidth;
-    let gh = glyphHeight;
-    let sx = (code % 16) * gw;
-    let sy = ((code / 16) | 0) * gh;
-    let dx = currentX;
-    let dy = currentY;
-
-    if (shadow) {
-      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy, gw, gh);
-      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx, dy + 1, gw, gh);
-      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
-    }
-
-    // Glyphs below 32 are considered to be colored icons already.
-    let img = code < 32 ? _image(_state.font.url) : image;
-    ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
-
-    currentX += glyphWidthsTable[char] ?? gw;
   }
 
-  _state.textX = currentX + (glyphWidthsTable[" "] ?? glyphWidth);
-  _state.textY = currentY;
+  ctx.drawImage(canvas, x, y);
+  _state.textX = x + cursor.x + (glyphWidthsTable[" "] ?? glyphWidth);
+  _state.textY = y + cursor.y;
 }
 
 /**
