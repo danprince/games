@@ -700,12 +700,84 @@ function _updateTweens() {
 }
 
 /**
+ * Cache of sprites that were expensive to render.
+ */
+let _sprites: Record<string, HTMLCanvasElement> = {};
+
+/**
  * Draws a sprite at the given coordinates.
  */
 export function draw(sprite: Sprite, x: number, y: number, w = sprite.w, h = sprite.h) {
   let { x: sx, y: sy, w: sw, h: sh } = sprite;
   let img = _image(sprite.url);
   ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+/**
+ * Draws a 9-slice sprite.
+ */
+export function draw9Slice(
+  sprite: NineSliceSprite,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+) {
+  let { x: sx, y: sy, w: sw, h: sh } = sprite;
+  let { x: cx, y: cy, w: cw, h: ch } = sprite.center;
+
+  // Column/row sizes
+  let left = cx;
+  let top = cy;
+  let right = sw - cw - cx;
+  let bottom = sh - ch - cy;
+
+  // Minimum dimensions (anything smaller creates rendering glitches)
+  w = Math.max(w, left + right);
+  h = Math.max(h, top + bottom);
+
+  // Drawing 9 slices is an expensive operation (9 draw calls) but they are
+  // usually re-drawn from the same sprites at the same size across multiple
+  // frames, so we can cache them once rendered to significantly speed up
+  // future calls.
+  let key = `@9slice:${sprite.url}:${sprite.x},${sprite.y}:${sprite.w},${sprite.h}:${w}:${h}`;
+  let canvas = _sprites[key];
+
+  if (!canvas) {
+    _sprites[key] = canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+
+    let sx0 = sx;
+    let sx1 = sx0 + left;
+    let sx2 = sw - right;
+    let sy0 = sy;
+    let sy1 = sy0 + top;
+    let sy2 = sy0 + sh - bottom;
+    let dx0 = 0;
+    let dx1 = dx0 + left;
+    let dx2 = dx0 + w - right;
+    let dy0 = 0;
+    let dy1 = dy0 + top;
+    let dy2 = dy0 + h - bottom;
+    let dcw = w - left - right;
+    let dch = h - top - bottom;
+    let img = _image(sprite.url);
+
+    let ctx = canvas.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(img, sx0, sy0, left, top, dx0, dy0, left, top); // top left
+    ctx.drawImage(img, sx2, sy0, right, top, dx2, dy0, right, top); // top right
+    ctx.drawImage(img, sx0, sy2, left, bottom, dx0, dy2, left, bottom); // bottom left
+    ctx.drawImage(img, sx2, sy2, right, bottom, dx2, dy2, right, bottom); // bottom right
+    ctx.drawImage(img, sx1, sy0, cw, top, dx1, dy0, dcw, top); // top
+    ctx.drawImage(img, sx1, sy2, cw, bottom, dx1, dy2, dcw, bottom); // bottom
+    ctx.drawImage(img, sx0, sy1, left, ch, dx0, dy1, left, dch); // left
+    ctx.drawImage(img, sx2, sy1, right, ch, dx2, dy1, right, dch); // right
+    ctx.drawImage(img, sx1, sy1, cw, ch, dx1, dy1, dcw, dch); // center
+  }
+
+  ctx.drawImage(canvas, x, y, w, h);
 }
 
 /**

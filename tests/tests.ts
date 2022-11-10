@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore } from "../src";
+import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore, draw9Slice } from "../src";
 import * as sprites from "./resources/sprites";
 import { font2 } from "./resources/font2";
 
@@ -127,6 +127,15 @@ test("drawing sprites", async () => {
   await start({ width: 100, height: 100 });
   draw(sprites.green_man, 0, 0);
   draw(sprites.red_man, 10, 20);
+  expect(canvas).toMatchCanvasSnapshot();
+});
+
+test("drawing nine slices", async () => {
+  preload(sprites);
+  await start({ width: 100, height: 100 });
+  draw9Slice(sprites.nine_slice, 0, 0, 10, 10);
+  draw9Slice(sprites.nine_slice, 20, 20, 30, 40);
+  draw9Slice(sprites.nine_slice, 60, 20, 5, 5);
   expect(canvas).toMatchCanvasSnapshot();
 });
 
