@@ -128,19 +128,19 @@ function _image(src: string): HTMLImageElement {
 }
 
 /**
- * @param url Preload an image asset from a URL before the game starts.
+ * Preload an image asset from a URL before the game starts.
  */
 export function preload(url: string): void;
 /**
- * @param sprites Preload a spritesheet's image before the game starts.
+ * Preload a spritesheet's image before the game starts.
  */
 export function preload(sprites: SpriteSheet): void;
 /**
- * @param sprites Preload a font's image before the game starts.
+ * Preload a font's image before the game starts.
  */
 export function preload(font: Font): void;
 /**
- * @param promise Wait for some promise to resolve before the game starts.
+ * Wait for some promise to resolve before the game starts.
  */
 export function preload(promise: Promise<any>): void;
 
