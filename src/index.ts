@@ -136,16 +136,24 @@ export function preload(url: string): void;
  */
 export function preload(sprites: SpriteSheet): void;
 /**
+ * @param sprites Preload a font's image before the game starts.
+ */
+export function preload(font: Font): void;
+/**
  * @param promise Wait for some promise to resolve before the game starts.
  */
 export function preload(promise: Promise<any>): void;
 
-export function preload(resource: string | SpriteSheet | Promise<any>): void {
+export function preload(resource: string | SpriteSheet | Font | Promise<any>): void {
   if (resource instanceof Promise) {
     _assets.push(resource);
   } else if (typeof resource !== "string") {
-    let id = Object.keys(resource)[0];
-    resource = resource[id]?.url;
+    if ("glyphWidth" in resource && "glyphHeight" in resource) {
+      resource = (resource as Font).url;
+    } else {
+      let id = Object.keys(resource)[0];
+      resource = resource[id]?.url;
+    }
   }
 
   if (typeof resource === "string") {
