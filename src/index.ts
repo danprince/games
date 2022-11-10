@@ -39,6 +39,20 @@ export interface Sprite extends Rectangle {
 }
 
 /**
+ * A sprite with a "center" region, as defined by Aseprite's slice tool.
+ */
+export interface NineSliceSprite extends Sprite {
+  center: Rectangle;
+}
+
+/**
+ * A sprite with a "pivot" point, as defined by Aseprite's slice tool.
+ */
+export interface PivotSprite extends Sprite {
+  pivot: Point;
+}
+
+/**
  * A keyed collection of sprites.
  */
 export interface SpriteSheet {
