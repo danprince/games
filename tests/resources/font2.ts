@@ -12,6 +12,7 @@ export let font2: Font = {
     "r": 5,
     "f": 5,
     "o": 5,
+    "e": 5,
     "j": 4,
     "p": 5,
     "t": 5,
