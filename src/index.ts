@@ -922,20 +922,15 @@ export function writeLine(
   _state.textY += _state.font.lineHeight;
 }
 
-let _tints = new Map<Font, Map<Fill, HTMLCanvasElement>>();
-
 /**
  * Recolor the font's image as a canvas (coloring operation is cached).
  */
 function _tint(col: Fill): HTMLCanvasElement {
-  let cache = _tints.get(_state.font);
+  let key = `tint:${_state.font.url}/${_key(col)}`;
+  let canvas = _sprites[key];
 
-  if (!cache) {
-    _tints.set(_state.font, cache = new Map());
-  }
-
-  if (!cache.has(col)) {
-    let canvas = document.createElement("canvas");
+  if (!canvas) {
+    canvas = _sprites[key] = document.createElement("canvas");
     let ctx = canvas.getContext("2d")!;
     let img = _image(_state.font.url);
     canvas.width = img.width;
@@ -944,10 +939,9 @@ function _tint(col: Fill): HTMLCanvasElement {
     ctx.fillStyle = col;
     ctx.globalCompositeOperation = "source-atop";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    cache.set(col, canvas);
   }
 
-  return cache.get(col)!;
+  return canvas;
 }
 
 /**
@@ -956,7 +950,7 @@ function _tint(col: Fill): HTMLCanvasElement {
  */
 function _reset() {
   _images = {};
-  _tints.clear();
+  _sprites = {};
   _state = _stack[0] || _state;
   _stack = [];
   _assets = [];
