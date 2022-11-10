@@ -82,6 +82,7 @@ interface DrawState {
   textY: number;
   color: Fill;
   textShadowColor: Fill | undefined;
+  font: Font;
 }
 
 export let canvas = document.createElement("canvas");
@@ -89,7 +90,6 @@ export let ctx = canvas.getContext("2d")!;
 
 let _delta = 0;
 let _images: Record<string, HTMLImageElement> = {};
-let _font: Font = defaultFont;
 let _assets: Promise<any>[] = [];
 let _animationFrame: number;
 
@@ -112,6 +112,7 @@ let _state: DrawState = {
   textX: 0,
   textY: 0,
   textShadowColor: undefined,
+  font: defaultFont,
 };
 
 /**
@@ -201,7 +202,7 @@ export async function start({
   font = defaultFont,
   loop = () => {},
 }: Config = {}) {
-  _font = font;
+  _state.font = font;
   _maxCanvasScale = maxCanvasScale;
   await _load();
   _resize(width, height);
@@ -287,7 +288,7 @@ function _screenToCanvas(x: number, y: number): Point {
  * @internal
  */
 async function _load(): Promise<void> {
-  preload(_font.url);
+  preload(_state.font.url);
   await Promise.all(_assets);
 }
 
@@ -420,6 +421,39 @@ export function clear() {
 }
 
 /**
+ * Set the current font.
+ */
+export function font(font: Font) {
+  _state.font = font;
+}
+
+/**
+ * Sets the cursor position (and optionally color) for {@link write} and
+ * {@link writeLine}.
+ */
+export function cursor(x: number, y: number, col?: Fill) {
+  _state.textX = x;
+  _state.textY = y;
+  if (col) _state.color = col;
+}
+
+/**
+ * Set the current drawing color. This can be a CSS color, a
+ * {@link CanvasGradient}, or a {@link CanvasPattern}.
+ */
+export function color(color: Fill) {
+  _state.color = color;
+}
+
+/**
+ * Set the current text shadow color. This can be a CSS color, a
+ * {@link CanvasGradient}, or a {@link CanvasPattern}.
+ */
+export function textShadow(color?: Fill) {
+  _state.textShadowColor = color;
+}
+
+/**
  * Push a new state onto the drawing stack.
  */
 export function save() {
@@ -445,7 +479,7 @@ export function restore() {
  * @param w The width of the view
  * @param h The height of the view
  */
-export function view(x: number, y: number, w?: number, h?: number) {
+export function view(x: number = 0, y: number = 0, w?: number, h?: number) {
   save();
   ctx.translate(x, y);
   _state.x = _state.x + x;
@@ -666,7 +700,7 @@ export function draw(sprite: Sprite, x: number, y: number, w = sprite.w, h = spr
  * @returns The rectangle size required to render this text.
  */
 export function measure(text: string): Rectangle {
-  let { glyphWidth, lineHeight, glyphWidthsTable } = _font;
+  let { glyphWidth, lineHeight, glyphWidthsTable } = _state.font;
   let lineWidth = 0;
   let boxWidth = 0;
   let boxHeight = lineHeight;
@@ -707,7 +741,7 @@ export function write(
   let currentY = y;
   let image = _tint(color);
   let imageShadow = _tint(shadow || "transparent");
-  let { lineHeight, glyphWidth, glyphHeight, glyphWidthsTable } = _font;
+  let { lineHeight, glyphWidth, glyphHeight, glyphWidthsTable } = _state.font;
 
   for (let i = 0; i < text.length; i++) {
     let char = text[i];
@@ -733,7 +767,7 @@ export function write(
     }
 
     // Glyphs below 32 are considered to be colored icons already.
-    let img = code < 32 ? _image(_font.url) : image;
+    let img = code < 32 ? _image(_state.font.url) : image;
     ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
 
     currentX += glyphWidthsTable[char] ?? gw;
@@ -760,29 +794,35 @@ export function writeLine(
 ) {
   write(text, x, y, color, shadow);
   _state.textX = x;
-  _state.textY += _font.lineHeight;
+  _state.textY += _state.font.lineHeight;
 }
 
-let _tints = new Map<Fill, HTMLCanvasElement>();
+let _tints = new Map<Font, Map<Fill, HTMLCanvasElement>>();
 
 /**
  * Recolor the font's image as a canvas (coloring operation is cached).
  */
 function _tint(col: Fill): HTMLCanvasElement {
-  if (!_tints.has(col)) {
+  let cache = _tints.get(_state.font);
+
+  if (!cache) {
+    _tints.set(_state.font, cache = new Map());
+  }
+
+  if (!cache.has(col)) {
     let canvas = document.createElement("canvas");
     let ctx = canvas.getContext("2d")!;
-    let img = _image(_font.url);
+    let img = _image(_state.font.url);
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0);
     ctx.fillStyle = col;
     ctx.globalCompositeOperation = "source-atop";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    _tints.set(col, canvas);
+    cache.set(col, canvas);
   }
 
-  return _tints.get(col)!;
+  return cache.get(col)!;
 }
 
 /**

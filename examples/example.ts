@@ -1,15 +1,26 @@
-import { canvas, clear, delta, down, easeOutBack, measure, over, pointer, pressed, start, tween, write } from "@danprince/games";
+import { canvas, clear, delta, down, easeOutBack, end, font, measure, over, pointer, preload, pressed, start, tween, view, write } from "@danprince/games";
+import { font2 } from "../tests/resources/font2";
 
 let t = { y: 0 };
 
 function loop() {
   clear();
-  delta();
-  button("Hello", 10, 10);
-  write("tween", 50, t.y);
+  button("Hello", 10, 70);
 
-  let { x, y } = pointer();
-  write(` ${x},${y}`, x, y);
+  view();
+  write("01234", 0, 0);
+  //write("tween", 90, t.y);
+  end();
+
+  {
+    let { x, y } = pointer();
+    view();
+    font(font2);
+    write(`The quick brown fox jumps over the lazy dog.`, 10, 10)
+    write(`THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.`, 10, 20)
+    write(` ${x},${y}`, x, y);
+    end();
+  }
 
   if (pressed()) {
     t.y = 0;
@@ -25,5 +36,10 @@ function button(text: string, x: number, y: number): boolean {
   return hover && down();
 }
 
-start({ loop });
-document.body.append(canvas);
+function init() {
+  preload(font2);
+  start({ loop });
+  document.body.append(canvas);
+}
+
+init();

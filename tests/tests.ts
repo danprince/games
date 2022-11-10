@@ -1,8 +1,9 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay } from "../src";
+import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore } from "../src";
 import * as sprites from "./resources/sprites";
+import { font2 } from "./resources/font2";
 
 // JSDOM doesn't support PointerEvent, so use MouseEvent when dispatching in
 // tests.
@@ -31,6 +32,10 @@ vi.mock("./resources/sprites.png", () => ({
 
 vi.mock("../src/font.png", () => ({
   default: readAsDataUrl("../src/font.png"),
+}));
+
+vi.mock("../resources/font2.png", () => ({
+  default: readAsDataUrl("../resources/font2.png"),
 }));
 
 afterEach(() => __reset__());
@@ -258,4 +263,19 @@ test("delay", async () => {
   expect(callback).toHaveBeenCalled();
   await frame(50);
   expect(callback).toHaveBeenCalledTimes(1);
+});
+
+test("alternate fonts", async () => {
+  preload(font2);
+  await start();
+  write("This is the default font", 10, 10);
+
+  save();
+  font(font2);
+  write("This is an alternate font", 10, 20);
+  restore();
+
+  write("Back to the default font", 10, 30);
+
+  expect(canvas).toMatchCanvasSnapshot();
 });
