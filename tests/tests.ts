@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, __update__, __reset__, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore, draw9Slice } from "../src";
+import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore, draw9Slice } from "../src/index";
 import * as sprites from "./resources/sprites";
 import { font2 } from "./resources/font2";
 
@@ -14,7 +14,7 @@ let PointerEvent = MouseEvent;
  * @param dt Milliseconds since last frame.
  */
 async function frame(dt: number = 15) {
-  __update__(dt);
+  _update(dt);
 }
 
 /**
@@ -38,7 +38,7 @@ vi.mock("../resources/font2.png", () => ({
   default: readAsDataUrl("../resources/font2.png"),
 }));
 
-afterEach(() => __reset__());
+afterEach(() => _reset());
 
 test("assert", () => {
   expect(() => assert(true)).not.toThrow();
