@@ -1,39 +1,23 @@
-import { canvas, clear, delta, down, easeOutBack, end, font, measure, over, pointer, preload, pressed, start, tween, view, write } from "@danprince/games";
+import { canvas, clear, ctx, cursor, end, font, preload, start, view, write } from "@danprince/games";
 import { font2 } from "../tests/resources/font2";
 
-let t = { y: 0 };
+let gradient = ctx.createLinearGradient(5, 0, 5, 60);
+gradient.addColorStop(0, "red");
+gradient.addColorStop(1, "blue");
 
 function loop() {
   clear();
-  button("Hello", 10, 70);
-
   view();
-  write("01234", 0, 0);
-  //write("tween", 90, t.y);
+  font(font2);
+
+  for (let i = 0; i < 100; i++) {
+    cursor(10, 10, "red", "black");
+    write(`The quick brown fox jumps over the lazy dog.`, 10, 10);
+    write(`THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.`, 10, 20);
+    write(`Text\nwith line\nbreaks`, 10, 30)
+  }
+
   end();
-
-  {
-    let { x, y } = pointer();
-    view();
-    font(font2);
-    write(`The quick brown fox jumps over the lazy dog.`, 10, 10)
-    write(`THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG.`, 10, 20)
-    write(` ${x},${y}`, x, y);
-    end();
-  }
-
-  if (pressed()) {
-    t.y = 0;
-    tween(t, { y: 100 }, 1000, easeOutBack);
-  }
-}
-
-function button(text: string, x: number, y: number): boolean {
-  let { w, h } = measure(text);
-  let hover = over(x, y, w, h)
-  let color = hover ? "cyan" : "black";
-  write(text, x, y, color);
-  return hover && down();
 }
 
 function init() {

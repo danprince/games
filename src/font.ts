@@ -1,6 +1,34 @@
-import type { Font } from "./";
 import defaultFontUrl from "./font.png";
 
+/**
+ * A bitmap font in the format that the engine understands.
+ */
+export interface Font {
+  /**
+   * The url of the font's image.
+   */
+  url: string;
+  /**
+   * The default width for each glyph, in pixels.
+   */
+  glyphWidth: number;
+  /**
+   * The default height for each glyph, in pixels.
+   */
+  glyphHeight: number;
+  /**
+   * The height for each line, in pixels.
+   */
+  lineHeight: number;
+  /**
+   * Widths for glyphs with variable widths.
+   */
+  glyphWidthsTable: Record<string, number>;
+}
+
+/**
+ * The font that games use by default.
+ */
 export let defaultFont: Font = {
   url: defaultFontUrl,
   glyphWidth: 5,
