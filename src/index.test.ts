@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine } from "../src/index";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, ctx } from "../src/index";
 import { font2 } from "./__fixtures__/font2";
 import * as sprites from "./__fixtures__/sprites";
 
@@ -53,9 +53,9 @@ test("delta", async () => {
 });
 
 test("canvas size", async () => {
-  await start({ width: 100, height: 100 });
-  expect(canvas.width).toBe(100);
-  expect(canvas.height).toBe(100);
+  await start({ width: 110, height: 120 });
+  expect(canvas.width).toBe(110);
+  expect(canvas.height).toBe(120);
 });
 
 test("automatic canvas scale", async () => {
@@ -124,6 +124,38 @@ test("alternate fonts", async () => {
 
   write("Back to the default font", 10, 30);
 
+  expect(canvas).toMatchSnapshot();
+});
+
+test("fillRect", () => {
+  start({ width: 100, height: 100 });
+  fillRect(0, 10, 20, 30, "red");
+  color("blue");
+  fillRect(50, 10, 20, 30);
+  expect(canvas).toMatchSnapshot();
+});
+
+test("strokeRect", () => {
+  start({ width: 100, height: 100 });
+  strokeRect(0, 10, 20, 30, "red");
+  color("blue");
+  strokeRect(50, 10, 20, 30);
+  expect(canvas).toMatchSnapshot();
+});
+
+test("line", () => {
+  start({ width: 100, height: 100 });
+  line(0, 10, 20, 30, "red");
+  color("blue");
+  line(50, 10, 20, 30);
+  expect(canvas).toMatchSnapshot();
+});
+
+test("stamp", () => {
+  start({ width: 100, height: 100 });
+  stamp(0xEAFFF1, 0, 10, "red");
+  color("blue");
+  stamp(0xEAFFF1, 10, 10);
   expect(canvas).toMatchSnapshot();
 });
 

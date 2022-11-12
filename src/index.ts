@@ -1,5 +1,5 @@
 import { defaultFont } from "./font";
-import { assert, clamp, getKey, LRUCache } from "./utils";
+import { assert, clamp, getKey, lineToPoints, LRUCache } from "./utils";
 
 /**
  * Utils.
@@ -801,6 +801,86 @@ function updateTweens() {
 
 /**
  * -------
+ * Drawing
+ * -------
+ */
+
+/**
+ * Fills a rectangle.
+ * @param col The color/fill to fill the rectangle with.
+ */
+export function fillRect(x: number, y: number, w: number, h: number, col = _state.color) {
+  ctx.save();
+  ctx.fillStyle = col;
+  ctx.fillRect(x | 0, y | 0, w | 0, h | 0);
+  ctx.restore();
+}
+
+/**
+ * Strokes a rectangle.
+ * @param col The color/fill to stroke the line with.
+ */
+export function strokeRect(x: number, y: number, w: number, h: number, col = _state.color) {
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.strokeRect((x | 0) + 0.5, (y | 0) + 0.5, w | 0, h | 0);
+  ctx.restore();
+}
+
+/**
+ * Strokes a single pixel line between two points.
+ * @param col The color/fill to stroke the line with.
+ */
+export function line(x1: number, y1: number, x2: number, y2: number, col = _state.color) {
+  let points = lineToPoints(x1, y1, x2, y2);
+  ctx.save();
+  ctx.fillStyle = col;
+  ctx.beginPath();
+  for (let { x, y } of points) {
+    ctx.rect(x, y, 1, 1);
+  }
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
+ * Draws a monochromatic 5x5 bit pattern. Useful for drawing particles, icons,
+ * and other assets that can be defined in code.
+ *
+ * @param pattern The first 25 bits of this number are treated as pixels in a 5x5 grid.
+ * @param x The x coordinate to draw at.
+ * @param y The y coordinate to draw the pattern at.
+ * @param col The color to fill the pattern with.
+ * @see https://0x55.netlify.app An editor for these kinds of patterns
+ */
+export function stamp(pattern: number, x: number, y: number, col = _state.color) {
+  let key = `stamp:${pattern}/${getKey(col)}`;
+  let canvas = _sprites.get(key);
+
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+    let ctx = canvas.getContext("2d")!;
+
+    ctx.save();
+    ctx.beginPath();
+
+    for (let y = 0; y < 5; y++) {
+      for (let x = 0; x < 5; x++) {
+        let bit = (pattern >> x + y * 5) & 1;
+        if (bit) ctx.rect(x, y, 1, 1);
+      }
+    }
+
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.drawImage(canvas, x, y);
+}
+
+/**
+ * -------
  * Sprites
  * -------
  */
@@ -1128,13 +1208,13 @@ export async function start({
   height = 180,
   maxCanvasScale = Infinity,
   font = defaultFont,
-  loop = () => {},
+  loop,
 }: Config = {}) {
   _state.font = font;
   _maxCanvasScale = maxCanvasScale;
+  resize(width, height);
   preload(font);
   await waitForAssets();
-  resize(width, height);
   addEventListeners();
-  startLoop(loop);
+  if (loop) startLoop(loop);
 }
