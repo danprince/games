@@ -172,7 +172,9 @@ export function lineToPoints(x1: number, y1: number, x2: number, y2: number): Po
  */
 export class TextureBatch {
   readonly canvas = document.createElement("canvas");
-  private context = this.canvas.getContext("2d")!;
+  private context = this.canvas.getContext("2d", {
+    willReadFrequently: true
+  })!;
   private cursor = 0;
   private rects: Record<string, Rectangle> = {};
 
