@@ -15,7 +15,10 @@ export default defineConfig({
     },
   },
   test: {
-    setupFiles: ["./tests/snapshots"],
+    // Canvas tests don't work if vitest is running with worker threads.
+    // https://xebia.com/blog/how-to-solve-canvas-crash-in-vitest-with-threads-and-jsdom/
+    //threads: false,
+
     include: ["**/{*.test,tests}.ts"],
     environment: "jsdom",
     environmentOptions: {

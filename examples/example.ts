@@ -1,5 +1,5 @@
-import { canvas, clear, delta, down, easeOutBack, end, font, measure, over, pointer, preload, pressed, start, tween, view, write } from "@danprince/games";
-import { font2 } from "../tests/resources/font2";
+import { canvas, clear, down, easeOutBack, end, font, measure, over, pointer, preload, pressed, start, tween, view, write } from "@danprince/games";
+import { font2 } from "../src/__fixtures__/font2";
 
 let t = { y: 0 };
 

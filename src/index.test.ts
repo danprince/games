@@ -1,9 +1,7 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { assert, bounds, canvas, clamp, draw, end, global, local, measure, preload, start, view, write, writeLine, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, Font, font, save, restore, draw9Slice } from "../src/index";
-import * as sprites from "./resources/sprites";
-import { font2 } from "./resources/font2";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay } from "../src/index";
 
 // JSDOM doesn't support PointerEvent, so use MouseEvent when dispatching in
 // tests.
@@ -26,35 +24,19 @@ function readAsDataUrl(path: string): string {
   return `data:image/png;base64,${binary}`;
 }
 
-vi.mock("./resources/sprites.png", () => ({
-  default: readAsDataUrl("./resources/sprites.png")
+vi.mock("./__fixtures__/sprites.png", () => ({
+  default: readAsDataUrl("./__fixtures__/sprites.png")
 }));
 
-vi.mock("../src/font.png", () => ({
-  default: readAsDataUrl("../src/font.png"),
+vi.mock("../font.png", () => ({
+  default: readAsDataUrl("../font.png"),
 }));
 
-vi.mock("../resources/font2.png", () => ({
-  default: readAsDataUrl("../resources/font2.png"),
+vi.mock("./__fixtures__/font2.png", () => ({
+  default: readAsDataUrl("./__fixtures__/font2.png"),
 }));
 
 afterEach(() => _reset());
-
-test("assert", () => {
-  expect(() => assert(true)).not.toThrow();
-  expect(() => assert(1)).not.toThrow();
-
-  expect(() => assert(false)).toThrow(/Assertion failed/);
-  expect(() => assert(0)).toThrow(/Assertion failed/);
-  expect(() => assert(null)).toThrow(/Assertion failed/);
-  expect(() => assert(false, "custom message")).toThrow(/custom message/);
-});
-
-test("clamp", () => {
-  expect(clamp(0, 10, 5)).toBe(5);
-  expect(clamp(0, 10, 15)).toBe(10);
-  expect(clamp(0, 10, -5)).toBe(0);
-});
 
 test("delta", async () => {
   await start();
@@ -93,70 +75,85 @@ test("measure", () => {
   ].map(measure)).toMatchSnapshot();
 });
 
-test("writing text", async () => {
-  await start({ width: 100, height: 100 });
-  write("hello world", 0, 10, "red", "black");
-  write("hello world", 30, 40, "green", "black");
-  write("hello world", 60, 70, "blue", "black");
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("writing text with cursor state", async () => {
-  await start({ width: 100, height: 100 });
-  write("p1", 0, 10, "red");
-  write("and p2");
-  write("and p3");
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("writing text in lines", async () => {
-  await start({ width: 100, height: 100 });
-  writeLine("this is line 1", 0, 10);
-  writeLine("and this is line 2");
-  writeLine("finally, line 3");
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("writing icons", async () => {
-  await start({ width: 100, height: 100 });
-  write("icon: \x01", 0, 10, "black");
-});
-
-test("drawing sprites", async () => {
-  preload(sprites);
-  await start({ width: 100, height: 100 });
-  draw(sprites.green_man, 0, 0);
-  draw(sprites.red_man, 10, 20);
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("drawing nine slices", async () => {
-  preload(sprites);
-  await start({ width: 100, height: 100 });
-  draw9Slice(sprites.nine_slice, 0, 0, 10, 10);
-  draw9Slice(sprites.nine_slice, 20, 20, 30, 40);
-  draw9Slice(sprites.nine_slice, 60, 20, 5, 5);
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("views", async () => {
-  await start({ width: 100, height: 100 });
-  view(10, 10, 50, 50);
-  write("hello", 0, 0);
-  end();
-  expect(canvas).toMatchCanvasSnapshot();
-});
-
-test("nested views", async () => {
-  await start({ width: 100, height: 100 });
-  view(20, 20);
-  write("view 1", 0, 0);
-  view(20, 20);
-  write("view 2", 0, 0);
-  end();
-  end();
-  expect(canvas).toMatchCanvasSnapshot();
-});
+//test("writing text", async () => {
+//  await start({ width: 100, height: 100 });
+//  write("hello world", 0, 10, "red", "black");
+//  write("hello world", 30, 40, "green", "black");
+//  write("hello world", 60, 70, "blue", "black");
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("writing text with cursor state", async () => {
+//  await start({ width: 100, height: 100 });
+//  write("p1", 0, 10, "red");
+//  write("and p2");
+//  write("and p3");
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("writing text in lines", async () => {
+//  await start({ width: 100, height: 100 });
+//  writeLine("this is line 1", 0, 10);
+//  writeLine("and this is line 2");
+//  writeLine("finally, line 3");
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("writing icons", async () => {
+//  await start({ width: 100, height: 100 });
+//  write("icon: \x01", 0, 10, "black");
+//});
+//
+//test("alternate fonts", async () => {
+//  preload(font2);
+//  await start();
+//  write("This is the default font", 10, 10);
+//
+//  save();
+//  font(font2);
+//  write("This is an alternate font", 10, 20);
+//  restore();
+//
+//  write("Back to the default font", 10, 30);
+//
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("drawing sprites", async () => {
+//  preload(sprites);
+//  await start({ width: 100, height: 100 });
+//  draw(sprites.green_man, 0, 0);
+//  draw(sprites.red_man, 10, 20);
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("drawing nine slices", async () => {
+//  preload(sprites);
+//  await start({ width: 100, height: 100 });
+//  draw9Slice(sprites.nine_slice, 0, 0, 10, 10);
+//  draw9Slice(sprites.nine_slice, 20, 20, 30, 40);
+//  draw9Slice(sprites.nine_slice, 60, 20, 5, 5);
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("views", async () => {
+//  await start({ width: 100, height: 100 });
+//  view(10, 10, 50, 50);
+//  write("hello", 0, 0);
+//  end();
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
+//
+//test("nested views", async () => {
+//  await start({ width: 100, height: 100 });
+//  view(20, 20);
+//  write("view 1", 0, 0);
+//  view(20, 20);
+//  write("view 2", 0, 0);
+//  end();
+//  end();
+//  expect(canvas).toMatchCanvasSnapshot();
+//});
 
 test("global coordinates", () => {
   expect(global(0, 0)).toEqual({ x: 0, y: 0 });
@@ -272,19 +269,4 @@ test("delay", async () => {
   expect(callback).toHaveBeenCalled();
   await frame(50);
   expect(callback).toHaveBeenCalledTimes(1);
-});
-
-test("alternate fonts", async () => {
-  preload(font2);
-  await start();
-  write("This is the default font", 10, 10);
-
-  save();
-  font(font2);
-  write("This is an alternate font", 10, 20);
-  restore();
-
-  write("Back to the default font", 10, 30);
-
-  expect(canvas).toMatchCanvasSnapshot();
 });

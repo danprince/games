@@ -1,4 +1,10 @@
 import { defaultFont } from "./font";
+import { assert, clamp, getKey } from "./utils";
+
+/**
+ * Utils.
+ */
+export { assert, clamp };
 
 /**
  * A point in 2D space.
@@ -280,16 +286,6 @@ let _timers: Timer[] = [];
 let _tweens: Tween[] = [];
 
 /**
- * A stable map of keys for objects that otherwise can't be used in a cache.
- */
-let _keys = new WeakMap<any, number>();
-
-/**
- * The next key we'll use when we see an object that isn't in {@see _keys}.
- */
-let _nextKey = 0;
-
-/**
  * Cache of cursor position after rendering a given piece of text.
  */
 let _textCursorCache: Record<string, Point> = {};
@@ -346,53 +342,6 @@ let _state: DrawState = {
   textShadowColor: undefined,
   font: defaultFont,
 };
-
-/**
- * -------
- * Helpers
- * -------
- */
-
-/**
- * Asserts that `cond` is truthy, or throws an error with `msg` as the text.
- */
-export function assert(
-  cond: any,
-  msg: string = "Assertion failed",
-): asserts cond {
-  if (!cond) throw new Error(msg);
-}
-
-/**
- * Clamps `value` into the inclusive range (`min`, `max`).
- * @param min The minimum allowed value
- * @param max The maximum allowed value
- * @param value The value to clamp
- */
-export function clamp(min: number, max: number, value: number): number {
-  if (value < min) return min;
-  if (value > max) return max;
-  return value;
-}
-
-/**
- * Return a unique key for a given object, to be used in caches.
- */
-function getKey(object: object): number;
-function getKey<T>(object: T): T;
-function getKey(object: any): any {
-  if (typeof object !== "object") {
-    return object;
-  }
-
-  if (_keys.has(object)) {
-    return _keys.get(object)!;
-  }
-
-  let key = _nextKey++;
-  _keys.set(object, key);
-  return key;
-}
 
 /**
  * ------
