@@ -926,8 +926,8 @@ export function draw9Slice(
   let bottom = sh - ch - cy;
 
   // Minimum dimensions (anything smaller creates rendering glitches)
-  w = Math.max(w, left + right);
-  h = Math.max(h, top + bottom);
+  w = Math.max(w, left + right) | 0;
+  h = Math.max(h, top + bottom) | 0;
 
   // Use cached version if we've already rendered this 9-slice at this size.
   let key = `9slice:${sprite.url}/${sprite.x},${sprite.y}:${sprite.w},${sprite.h}/${w},${h}`;
