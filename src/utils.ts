@@ -103,4 +103,9 @@ export class LRUCache<Key, Value> {
 
     return node.value;
   }
+
+  clear() {
+    this.head = this.tail = null;
+    this.cache.clear();
+  }
 }

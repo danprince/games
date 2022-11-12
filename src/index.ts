@@ -1,5 +1,5 @@
 import { defaultFont } from "./font";
-import { assert, clamp, getKey } from "./utils";
+import { assert, clamp, getKey, LRUCache } from "./utils";
 
 /**
  * Utils.
@@ -265,9 +265,11 @@ let _delta = 0;
 let _images: Record<string, HTMLImageElement> = {};
 
 /**
- * Cache of sprites that were expensive to render.
+ * Cache of sprites that were expensive to render. Uses an LRU cache to ensure
+ * that the memory can't go out of control if the game is creating lots of
+ * dynamic sprites.
  */
-let _sprites: Record<string, HTMLCanvasElement> = {};
+let _sprites = new LRUCache<string, HTMLCanvasElement>(100);
 
 /**
  * List of promises representing assets that need to be resolved before the
@@ -837,12 +839,13 @@ export function draw9Slice(
 
   // Use cached version if we've already rendered this 9-slice at this size.
   let key = `9slice:${sprite.url}/${sprite.x},${sprite.y}:${sprite.w},${sprite.h}/${w},${h}`;
-  let canvas = _sprites[key];
+  let canvas = _sprites.get(key);
 
   if (!canvas) {
-    _sprites[key] = canvas = document.createElement("canvas");
+    canvas = document.createElement("canvas");
     canvas.width = w;
     canvas.height = h;
+    _sprites.set(key, canvas);
 
     let sx0 = sx;
     let sx1 = sx0 + left;
@@ -931,12 +934,13 @@ export function write(
   // using shadows), so we can significantly increase performance by
   // caching the result, then rendering it directly in the future.
   let key = `text:${font.url}/${getKey(color)}/${getKey(shadow)}/${text}`;
-  let canvas = _sprites[key];
+  let canvas = _sprites.get(key);
   let cursor = _textCursorCache[key];
 
   if (!canvas) {
-    canvas = _sprites[key] = document.createElement("canvas");
+    canvas = document.createElement("canvas");
     cursor = _textCursorCache[key] = { x: 0, y: 0 };
+    _sprites.set(key, canvas);
 
     let image = tint(color);
     let imageShadow = tint(shadow || "transparent");
@@ -1009,10 +1013,10 @@ export function writeLine(
  */
 function tint(col: Fill): HTMLCanvasElement {
   let key = `tint:${_state.font.url}/${getKey(col)}`;
-  let canvas = _sprites[key];
+  let canvas = _sprites.get(key);
 
   if (!canvas) {
-    canvas = _sprites[key] = document.createElement("canvas");
+    canvas = document.createElement("canvas");
     let ctx = canvas.getContext("2d")!;
     let img = imageByUrl(_state.font.url);
     canvas.width = img.width;
@@ -1021,6 +1025,7 @@ function tint(col: Fill): HTMLCanvasElement {
     ctx.fillStyle = col;
     ctx.globalCompositeOperation = "source-atop";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    _sprites.set(key, canvas);
   }
 
   return canvas;
@@ -1057,11 +1062,11 @@ export function _update(dt: number) {
  */
 export function _reset() {
   _images = {};
-  _sprites = {};
   _state = _stack[0] || _state;
   _stack = [];
   _assets = [];
   _tweens = [];
+  _sprites.clear();
   _down.clear();
   _pressed.clear();
   _released.clear();
