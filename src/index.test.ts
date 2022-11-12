@@ -1,4 +1,4 @@
-import { afterEach, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
 import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine } from "../src/index";
@@ -39,6 +39,12 @@ vi.mock("./__fixtures__/font2.png", () => ({
 }));
 
 afterEach(() => _reset());
+
+beforeEach(() => {
+  // Don't allow tests to edit the default drawing state (it can cause
+  // subsequent tests to fail).
+  save();
+});
 
 test("delta", async () => {
   await start();
