@@ -859,6 +859,7 @@ export function stamp(pattern: number, x: number, y: number, col = _state.color)
 
   if (!canvas) {
     canvas = document.createElement("canvas");
+    _sprites.set(key, canvas);
     let ctx = canvas.getContext("2d")!;
 
     ctx.save();
