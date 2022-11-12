@@ -1,3 +1,5 @@
+import type { Point } from ".";
+
 /**
  * A stable map of keys for objects that otherwise can't be used in a cache.
  */
@@ -108,4 +110,50 @@ export class LRUCache<Key, Value> {
     this.head = this.tail = null;
     this.cache.clear();
   }
+}
+
+/**
+ * Calculates the points on a rasterised version of a single pixel line using
+ * [Bresenham's algorithm](https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm).
+ * @param x1 X coordinate of the first point.
+ * @param y1 Y coordinate of the first point.
+ * @param x2 X coordinate of the second point.
+ * @param y2 Y coordinate of the second point.
+ * @returns An array of points along the line.
+ */
+export function bresenhams(x1: number, y1: number, x2: number, y2: number): Point[] {
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  let sx = Math.sign(dx);
+  let sy = Math.sign(dy);
+  if (sx === 0 && sy === 0) return [];
+
+  let err = 0;
+  let points: Point[] = [];
+  dx = Math.abs(dx);
+  dy = Math.abs(dy);
+
+  if (dx > dy) {
+    for (let x = x1, y = y1; sx < 0 ? x >= x2 : x <= x2; x += sx) {
+      points.push({ x, y });
+      err += dy;
+      if (err * 2 >= dx) {
+        y += sy;
+        err -= dx;
+      }
+    }
+  }
+
+  else {
+    for (let x = x1, y = y1; sy < 0 ? y >= y2 : y <= y2; y += sy) {
+      points.push({ x, y });
+      err += dx;
+      if (err * 2 >= dy) {
+        x += sx;
+        err -= dy;
+      }
+    }
+  }
+
+  return points;
 }
