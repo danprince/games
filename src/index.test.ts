@@ -26,8 +26,8 @@ function readAsDataUrl(path: string): string {
   return `data:image/png;base64,${binary}`;
 }
 
-vi.mock("../font.png", () => ({
-  default: readAsDataUrl("../font.png"),
+vi.mock("./font.png", () => ({
+  default: readAsDataUrl("./font.png"),
 }));
 
 vi.mock("./__fixtures__/sprites.png", () => ({
