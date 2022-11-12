@@ -121,7 +121,7 @@ export class LRUCache<Key, Value> {
  * @param y2 Y coordinate of the second point.
  * @returns An array of points along the line.
  */
-export function bresenhams(x1: number, y1: number, x2: number, y2: number): Point[] {
+export function lineToPoints(x1: number, y1: number, x2: number, y2: number): Point[] {
   let dx = x2 - x1;
   let dy = y2 - y1;
   let sx = Math.sign(dx);
