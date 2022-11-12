@@ -1,4 +1,4 @@
-import type { Point } from ".";
+import type { Point, Rectangle } from ".";
 
 /**
  * A stable map of keys for objects that otherwise can't be used in a cache.
@@ -156,4 +156,55 @@ export function lineToPoints(x1: number, y1: number, x2: number, y2: number): Po
   }
 
   return points;
+}
+
+/**
+ * A very simple batched texture that can hold multiple textures as a more
+ * performant alternative to caching and rendering from multiple canvases.
+ *
+ * Note: texture batches will grow indefinitely and can easily cause
+ * memory leaks.
+ *
+ * To avoid reshaping the underlying texture too often, all the textures
+ * are arranged in a horizontal strip that is doubled in width whenever
+ * a texture is added that would overflow. The height is expanded to
+ * match the height of the tallest texture.
+ */
+export class TextureBatch {
+  readonly canvas = document.createElement("canvas");
+  private context = this.canvas.getContext("2d")!;
+  private cursor = 0;
+  private rects: Record<string, Rectangle> = {};
+
+  grow(canvas: HTMLCanvasElement) {
+    let { width, height } = this.canvas;
+    let requiredWidth = this.cursor + canvas.width;
+    let requiredHeight = canvas.height;
+    if (requiredWidth <= width && requiredHeight <= height) return;
+
+    let imageData = this.context.getImageData(0, 0, width, height);
+    this.canvas.width *= 2;
+    this.canvas.height = requiredHeight;
+    this.context.putImageData(imageData, 0, 0);
+  }
+
+  add(key: string, canvas: HTMLCanvasElement): Rectangle {
+    this.grow(canvas);
+    this.context.imageSmoothingEnabled = false;
+    this.context.drawImage(canvas, this.cursor, 0);
+    let rect: Rectangle = {
+      x: this.cursor,
+      y: 0,
+      w: canvas.width,
+      h: canvas.height,
+    };
+
+    this.cursor += canvas.width;
+    this.rects[key] = rect;
+    return rect;
+  }
+
+  get(key: string): Rectangle | undefined {
+    return this.rects[key];
+  }
 }
