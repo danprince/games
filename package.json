@@ -19,6 +19,7 @@
     "prepublishOnly": "yarn typecheck && yarn test --run && yarn build"
   },
   "devDependencies": {
+    "canvas": "^2.10.2",
     "jsdom": "^20.0.0",
     "typescript": "^4.5.4",
     "vite": "^2.9.9",
