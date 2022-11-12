@@ -1,5 +1,5 @@
 import { defaultFont } from "./font";
-import { assert, clamp, getKey, lineToPoints, LRUCache } from "./utils";
+import { assert, clamp, getKey, lineToPoints, LRUCache, TextureBatch } from "./utils";
 
 /**
  * Utils.
@@ -843,6 +843,8 @@ export function line(x1: number, y1: number, x2: number, y2: number, col = _stat
   ctx.restore();
 }
 
+let _stampTextureBatch = new TextureBatch();
+
 /**
  * Draws a monochromatic 5x5 bit pattern. Useful for drawing particles, icons,
  * and other assets that can be defined in code.
@@ -854,15 +856,14 @@ export function line(x1: number, y1: number, x2: number, y2: number, col = _stat
  * @see https://0x55.netlify.app An editor for these kinds of patterns
  */
 export function stamp(pattern: number, x: number, y: number, col = _state.color) {
-  let key = `stamp:${pattern}/${getKey(col)}`;
-  let canvas = _sprites.get(key);
+  let key = `${pattern}/${getKey(col)}`;
+  let rect = _stampTextureBatch.get(key);
 
-  if (!canvas) {
-    canvas = document.createElement("canvas");
-    _sprites.set(key, canvas);
+  if (!rect) {
+    let canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 5;
     let ctx = canvas.getContext("2d")!;
 
-    ctx.save();
     ctx.beginPath();
 
     for (let y = 0; y < 5; y++) {
@@ -874,10 +875,20 @@ export function stamp(pattern: number, x: number, y: number, col = _state.color)
 
     ctx.fillStyle = col;
     ctx.fill();
-    ctx.restore();
+    rect = _stampTextureBatch.add(key, canvas);
   }
 
-  ctx.drawImage(canvas, x, y);
+  ctx.drawImage(
+    _stampTextureBatch.canvas,
+    rect.x,
+    rect.y,
+    rect.w,
+    rect.h,
+    x,
+    y,
+    rect.w,
+    rect.h,
+  );
 }
 
 /**
