@@ -6,6 +6,21 @@ local function formatTable(table)
   return str .. "}"
 end
 
+local function formatVariableName(str)
+  local name = str
+  local start = name:sub(1, 1)
+
+  -- variable names cannot start with numbers
+  -- (use a _ prefix if the slice does)
+  if start >= "0" and start <= "9" then
+    name = "_" .. name
+  end
+
+  -- variable names cannot contain spaces
+  -- (replace with underscores)
+  return string.gsub(name, " ", "_")
+end
+
 local function exportSpriteSheet(spr)
   local texturePath = string.gsub(spr.filename, ".aseprite", ".png")
   local modulePath = string.gsub(spr.filename, ".aseprite", ".ts")
@@ -43,7 +58,7 @@ local function exportSpriteSheet(spr)
 
     local line = string.format(
       'export const %s = %s;',
-      slice.name,
+      formatVariableName(slice.name),
       formatTable(props)
     )
 
