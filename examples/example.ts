@@ -1,4 +1,4 @@
-import { canvas, clear, ctx, down, easeOutBack, end, fillRect, font, line, measure, over, pointer, preload, pressed, stamp, start, strokeRect, tween, view, write } from "@danprince/games";
+import { canvas, clear, down, easeOutBack, end, fillRect, font, line, measure, over, pointer, preload, pressed, stamp, start, strokeRect, tween, view, write } from "@danprince/games";
 import { font2 } from "../src/__fixtures__/font2";
 
 let t = { y: 0 };

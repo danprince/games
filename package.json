@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc",
-    "typecheck": "tsc && tsc -p examples && tsc -p tests",
+    "typecheck": "tsc && tsc -p examples",
     "preview": "vite preview",
     "test": "vitest",
     "prepublishOnly": "yarn typecheck && yarn test --run && yarn build"

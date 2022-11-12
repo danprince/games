@@ -7,5 +7,5 @@
     "declarationDir": "dist"
   },
   "include": ["src"],
-  "exclude": ["tests", "examples", "dist"]
+  "exclude": ["examples", "dist"]
 }
