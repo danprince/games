@@ -4,7 +4,7 @@ import * as sprites from "../examples/sprites";
 let spritesArray = Object.values(sprites);
 let textArray = Object.keys(sprites);
 let colorsArray = generate(10, () => `hsl(${randomInt(360)}, 80%, 60%)`);
-let sizesArray = generate(20, () => [randomInt(100), randomInt(100)]);
+let sizesArray = generate(10, () => [randomInt(100), randomInt(100)]);
 let stampsArray = [0x7EA77C04, 0x7FF8B9CE, 0x1F8FEBF, 0xEAFFF1, 0x15A4D07];
 
 let fpsSamples: number[] = [];
@@ -185,10 +185,9 @@ function benchmarkTextWithShadows() {
   count ||= 1000;
   let text = randomItem(textArray);
   let color = randomItem(colorsArray);
-  let shadow = randomItem(colorsArray);
   let x = Math.random() * canvas.width;
   let y = Math.random() * canvas.height;
-  write(text, x, y, color, shadow);
+  write(text, x, y, color, "black");
 }
 
 function benchmark9Slices() {
