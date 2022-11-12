@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": [
+    "src/**.test.ts",
+    "src/**/__fixtures__/*"
+  ]
+}

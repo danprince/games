@@ -1,11 +1,24 @@
 {
-  "extends": "./tsconfig.common",
   "compilerOptions": {
-    "noEmit": false,
-    "emitDeclarationOnly": true,
-    "declaration": true,
-    "declarationDir": "dist"
+    "types": ["vite/client"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "sourceMap": true,
+    "stripInternal": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@danprince/games": ["./src"]
+    }
   },
-  "include": ["src"],
-  "exclude": ["examples", "dist"]
+  "include": ["src", "examples", "benchmarks"]
 }
