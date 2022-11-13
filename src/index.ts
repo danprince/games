@@ -1080,10 +1080,14 @@ function tint(col: Fill): HTMLCanvasElement {
     let img = imageByUrl(_state.font.url);
     canvas.width = img.width;
     canvas.height = img.height;
-    ctx.drawImage(img, 0, 0);
+
+    ctx.globalCompositeOperation = "multiply";
     ctx.fillStyle = col;
-    ctx.globalCompositeOperation = "source-atop";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, img.width, img.height);
+    ctx.drawImage(img, 0, 0);
+    ctx.globalCompositeOperation = "destination-atop";
+    ctx.drawImage(img, 0, 0);
+
     _tintCanvasCache[key] = canvas;
   }
 
