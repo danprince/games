@@ -94,6 +94,14 @@ export interface Font {
    * Widths for glyphs with variable widths.
    */
   glyphWidthsTable: Record<string, number>;
+  /**
+   * The number of glyphs that are already colored and should not be recolored
+   * when they are rendered. The colored glyph range starts at the beginning of
+   * the font.
+   *
+   * Fonts that are already colored should set this value to Infinity.
+   */
+  precoloredGlyphs?: number;
 }
 
 /**
@@ -1004,7 +1012,8 @@ export function write(
   let { font } = _state;
   let cursorX = x;
   let cursorY = y;
-  let image = tint(color);
+  let precolorIndex = font.precoloredGlyphs || 0;
+  let image = precolorIndex === Infinity ? imageByUrl(font.url) : tint(color);
   let imageShadow = tint(shadow || "transparent");
 
   for (let i = 0; i < text.length; i++) {
@@ -1030,8 +1039,8 @@ export function write(
       ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
     }
 
-    // Glyphs below 32 are considered to be colored icons already.
-    let img = code < 32 ? imageByUrl(_state.font.url) : image;
+    // Glyphs below the precolor index are considered to be colored already.
+    let img = code < precolorIndex ? imageByUrl(_state.font.url) : image;
     ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
 
     cursorX += font.glyphWidthsTable[char] ?? gw;
