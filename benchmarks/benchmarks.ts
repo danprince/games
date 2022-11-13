@@ -1,4 +1,4 @@
-import { canvas, clear, ctx, delta, draw, draw9Slice, fillRect, line, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
+import { canvas, clear, ctx, delta, draw, draw9Slice, fillRect, line, pointer, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
 import * as sprites from "../examples/sprites";
 
 type BenchmarkFn = () => void;
@@ -175,6 +175,15 @@ benchmarks = [
     let x = Math.random() * canvas.width;
     let y = Math.random() * canvas.height;
     write(text, x, y, color);
+  },
+
+  function benchmarkDynamicText() {
+    count ||= 1000;
+    let p = pointer();
+    let color = randomItem(colorsArray);
+    let x = randomInt(canvas.width);
+    let y = randomInt(canvas.height);
+    write(`${p.x},${p.y}`, x, y, color);
   },
 
   function benchmarkTextMultiline() {
