@@ -965,8 +965,8 @@ export function draw9Slice(
  * @param text The text to measure.
  * @returns The rectangle size required to render this text.
  */
-export function measure(text: string): Rectangle {
-  let { glyphWidth, lineHeight, glyphWidthsTable } = _state.font;
+export function measure(text: string, font = _state.font): Rectangle {
+  let { glyphWidth, lineHeight, glyphWidthsTable } = font;
   let lineWidth = 0;
   let boxWidth = 0;
   let boxHeight = lineHeight;
