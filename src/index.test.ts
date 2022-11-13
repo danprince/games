@@ -80,7 +80,7 @@ test("measure", () => {
     "!!!",
     "WWW",
     "Text with a \nnewline",
-  ].map(measure)).toMatchSnapshot();
+  ].map(text => measure(text))).toMatchSnapshot();
 });
 
 test("writing text", async () => {
