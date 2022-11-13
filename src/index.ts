@@ -989,7 +989,6 @@ export function measure(text: string): Rectangle {
  * Cache of text that we've already rendered before.
  */
 let _textTextureCache = new TextureCache();
-document.body.append(_textTextureCache.canvas)
 
 /**
  * Writes text to the canvas using a bitmap font.
@@ -1008,58 +1007,43 @@ export function write(
   shadow = _state.textShadowColor,
 ) {
   let { font } = _state;
-  let key = `text:${font.url}/${getKey(color)}/${getKey(shadow)}/${text}`;
-  let cursor = _textCursorCache[key] || { x: 0, y: 0 };
+  let cursorX = x;
+  let cursorY = y;
+  let image = tint(color);
+  let imageShadow = tint(shadow || "transparent");
 
-  let rect = _textTextureCache.findOrCreate(key, () => {
-    let canvas = document.createElement("canvas");
-    _textCursorCache[key] = cursor;
+  for (let i = 0; i < text.length; i++) {
+    let char = text[i];
 
-    let image = tint(color);
-    let imageShadow = tint(shadow || "transparent");
-
-    let bounds = measure(text);
-    canvas.width = bounds.w;
-    canvas.height = bounds.h;
-    let ctx = canvas.getContext("2d")!;
-    ctx.imageSmoothingEnabled = false;
-
-    for (let i = 0; i < text.length; i++) {
-      let char = text[i];
-
-      if (char === "\n") {
-        cursor.x = 0;
-        cursor.y += font.lineHeight;
-        continue;
-      }
-
-      let code = char.charCodeAt(0);
-      let gw = font.glyphWidth;
-      let gh = font.glyphHeight;
-      let sx = (code % 16) * gw;
-      let sy = ((code / 16) | 0) * gh;
-      let dx = cursor.x;
-      let dy = cursor.y;
-
-      if (shadow) {
-        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy, gw, gh);
-        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx, dy + 1, gw, gh);
-        ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
-      }
-
-      // Glyphs below 32 are considered to be colored icons already.
-      let img = code < 32 ? imageByUrl(_state.font.url) : image;
-      ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
-
-      cursor.x += font.glyphWidthsTable[char] ?? gw;
+    if (char === "\n") {
+      cursorX = x;
+      cursorY += font.lineHeight;
+      continue;
     }
-    return canvas;
-  });
 
-  let { x: sx, y: sy, w: sw, h: sh } = rect;
-  ctx.drawImage(_textTextureCache.canvas, sx, sy, sw, sh, x, y, sw, sh);
-  _state.textX = x + cursor.x + (font.glyphWidthsTable[" "] ?? font.glyphWidth);
-  _state.textY = y + cursor.y;
+    let code = char.charCodeAt(0);
+    let gw = font.glyphWidth;
+    let gh = font.glyphHeight;
+    let sx = (code % 16) * gw;
+    let sy = ((code / 16) | 0) * gh;
+    let dx = cursorX;
+    let dy = cursorY;
+
+    if (shadow) {
+      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy, gw, gh);
+      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx, dy + 1, gw, gh);
+      ctx.drawImage(imageShadow, sx, sy, gw, gh, dx + 1, dy + 1, gw, gh);
+    }
+
+    // Glyphs below 32 are considered to be colored icons already.
+    let img = code < 32 ? imageByUrl(_state.font.url) : image;
+    ctx.drawImage(img, sx, sy, gw, gh, dx, dy, gw, gh);
+
+    cursorX += font.glyphWidthsTable[char] ?? gw;
+  }
+
+  _state.textX = cursorX + (font.glyphWidthsTable[" "] ?? font.glyphWidth);
+  _state.textY = cursorY;
 }
 
 /**
