@@ -1,5 +1,7 @@
-import { canvas, clear, delta, draw, draw9Slice, preload, pressed, stamp, start, write, _reset } from "@danprince/games";
+import { canvas, clear, ctx, delta, draw, draw9Slice, fillRect, line, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
 import * as sprites from "../examples/sprites";
+
+type BenchmarkFn = () => void;
 
 let spritesArray = Object.values(sprites);
 let textArray = Object.keys(sprites);
@@ -12,17 +14,10 @@ let fps = 0;
 let count = 0;
 let stable = false;
 let auto = false;
-let currentBenchmark = benchmarkSprites;
-let controls = createBenchmarkControls();
 
-let benchmarks = [
-  benchmarkSprites,
-  benchmarkScaledSprites,
-  benchmark9Slices,
-  benchmarkText,
-  benchmarkTextWithShadows,
-  benchmarkStamps,
-];
+let benchmarks: BenchmarkFn[] = [];
+let currentBenchmark: BenchmarkFn;
+let controls = createBenchmarkControls();
 
 function generate<T>(n: number, factory: () => T): T[] {
   return Array.from({ length: n }).map(factory);
@@ -155,58 +150,101 @@ function loop() {
   }
 }
 
-function benchmarkSprites() {
-  count ||= 9_000;
-  let sprite = randomItem(spritesArray);
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height;
-  draw(sprite, x, y);
-}
+benchmarks = [
+  function benchmarkSprites() {
+    count ||= 9_000;
+    let sprite = randomItem(spritesArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    draw(sprite, x, y);
+  },
 
-function benchmarkScaledSprites() {
-  count ||= 9_000;
-  let sprite = randomItem(spritesArray);
-  let [w, h] = randomItem(sizesArray);
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height;
-  draw(sprite, x, y, w, h);
-}
+  function benchmarkScaledSprites() {
+    count ||= 9_000;
+    let sprite = randomItem(spritesArray);
+    let [w, h] = randomItem(sizesArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    draw(sprite, x, y, w, h);
+  },
 
-function benchmarkText() {
-  count ||= 1000;
-  let text = randomItem(textArray);
-  let color = randomItem(colorsArray);
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height;
-  write(text, x, y, color, )
-}
+  function benchmarkText() {
+    count ||= 1000;
+    let text = randomItem(textArray);
+    let color = randomItem(colorsArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    write(text, x, y, color);
+  },
 
-function benchmarkTextWithShadows() {
-  count ||= 1000;
-  let text = randomItem(textArray);
-  let color = randomItem(colorsArray);
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height;
-  write(text, x, y, color, "black");
-}
+  function benchmarkTextMultiline() {
+    count ||= 1000;
+    let text = textArray.join("\n");
+    let color = randomItem(colorsArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    write(text, x, y, color);
+  },
 
-function benchmark9Slices() {
-  count ||= 1000;
-  let sprite = randomItem([sprites.panel_blue, sprites.panel_red]);
-  let [w, h] = randomItem(sizesArray);
-  let x = Math.random() * canvas.width | 0;
-  let y = Math.random() * canvas.height | 0;
-  draw9Slice(sprite, x, y, w, h);
-}
+  function benchmarkTextWithShadows() {
+    count ||= 1000;
+    let text = randomItem(textArray);
+    let color = randomItem(colorsArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    write(text, x, y, color, "black");
+  },
 
-function benchmarkStamps() {
-  count ||= 12_000;
-  let pattern = randomItem(stampsArray);
-  let color = randomItem(["red", "blue", "green", "cyan", "magenta", "yellow", "green"]);
-  let x = Math.random() * canvas.width | 0;
-  let y = Math.random() * canvas.height | 0;
-  stamp(pattern, x, y, color);
-}
+  function benchmark9Slices() {
+    count ||= 1000;
+    let sprite = randomItem([sprites.panel_blue, sprites.panel_red]);
+    let [w, h] = randomItem(sizesArray);
+    let x = Math.random() * canvas.width | 0;
+    let y = Math.random() * canvas.height | 0;
+    draw9Slice(sprite, x, y, w, h);
+  },
+
+  function benchmarkStamps() {
+    //count ||= 12_000;
+    count ||= 2000;
+    let pattern = randomItem(stampsArray);
+    let color = randomItem(colorsArray);
+    let x = Math.random() * canvas.width | 0;
+    let y = Math.random() * canvas.height | 0;
+    stamp(pattern, x, y, color);
+  },
+
+  function benchmarkFillRect() {
+    count ||= 18_000;
+    let color = randomItem(colorsArray);
+    let [w, h] = randomItem(sizesArray);
+    let x = randomInt(canvas.width);
+    let y = randomInt(canvas.height);
+    fillRect(x, y, w, h, color);
+  },
+
+  function benchmarkStrokeRect() {
+    count ||= 16_000;
+    let color = randomItem(colorsArray);
+    let [w, h] = randomItem(sizesArray);
+    let x = randomInt(canvas.width);
+    let y = randomInt(canvas.height);
+    strokeRect(x, y, w, h, color);
+  },
+
+  function benchmarkLine() {
+    count ||= 600;
+    let x0 = randomInt(canvas.width);
+    let y0 = randomInt(canvas.height);
+    let x1 = randomInt(canvas.width);
+    let y1 = randomInt(canvas.height);
+    let color = randomItem(colorsArray);
+    line(x0, y0, x1, y1, color);
+  },
+
+];
+
+currentBenchmark = benchmarks[0];
 
 function init() {
   reset();
