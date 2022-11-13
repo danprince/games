@@ -1,4 +1,4 @@
-import { canvas, clear, ctx, delta, draw, draw9Slice, fillRect, line, pointer, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
+import { canvas, clear, delta, draw, draw9Slice, fillRect, line, pointer, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
 import * as sprites from "../examples/sprites";
 
 type BenchmarkFn = () => void;
