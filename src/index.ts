@@ -281,11 +281,6 @@ let _timers: Timer[] = [];
 let _tweens: Tween[] = [];
 
 /**
- * Cache of cursor position after rendering a given piece of text.
- */
-let _textCursorCache: Record<string, Point> = {};
-
-/**
  * Handle for the current animation frame for the game's loop. Cancelling this
  * animation frame will stop the game.
  */
@@ -1131,7 +1126,6 @@ export function _reset() {
   _assets = [];
   _tweens = [];
   _tintCanvasCache = {};
-  _textCursorCache = {};
   _stampTextureCache.clear();
   _textTextureCache.clear();
   _down.clear();
