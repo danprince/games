@@ -162,7 +162,7 @@ export function lineToPoints(x1: number, y1: number, x2: number, y2: number): Po
  * A very simple batched texture that can hold multiple textures as a more
  * performant alternative to caching and rendering from multiple canvases.
  *
- * Note: texture batches will grow indefinitely and can easily cause
+ * Note: texture caches will grow indefinitely and can easily cause
  * memory leaks.
  *
  * To avoid reshaping the underlying texture too often, all the textures
@@ -170,31 +170,48 @@ export function lineToPoints(x1: number, y1: number, x2: number, y2: number): Po
  * a texture is added that would overflow. The height is expanded to
  * match the height of the tallest texture.
  */
-export class TextureBatch {
+export class TextureCache {
   readonly canvas = document.createElement("canvas");
-  private context = this.canvas.getContext("2d", {
-    willReadFrequently: true
-  })!;
+  private ctx = this.canvas.getContext("2d", { willReadFrequently: true })!;
   private cursor = 0;
   private rects: Record<string, Rectangle> = {};
 
-  grow(canvas: HTMLCanvasElement) {
-    let { width, height } = this.canvas;
-    let requiredWidth = this.cursor + canvas.width;
-    let requiredHeight = canvas.height;
-    if (requiredWidth <= width && requiredHeight <= height) return;
+  clear() {
+    this.rects = {};
+    this.canvas.width = this.canvas.width;
+  }
 
-    let imageData = this.context.getImageData(0, 0, width, height);
-    this.canvas.width *= 2;
-    this.canvas.height = requiredHeight;
-    this.context.putImageData(imageData, 0, 0);
+  findOrCreate(key: string, create: () => HTMLCanvasElement) {
+    return this.rects[key] || this.add(key, create());
+  }
+
+  get(key: string): Rectangle | undefined {
+    return this.rects[key];
   }
 
   add(key: string, canvas: HTMLCanvasElement): Rectangle {
-    this.grow(canvas);
-    this.context.imageSmoothingEnabled = false;
-    this.context.drawImage(canvas, this.cursor, 0);
-    let rect: Rectangle = {
+    let { width, height } = this.canvas;
+    let requiredWidth = this.cursor + canvas.width;
+    let requiredHeight = canvas.height;
+
+    if (requiredWidth > width || requiredHeight > height) {
+      let imageData = this.ctx.getImageData(0, 0, width, height);
+
+      while (this.canvas.width < requiredWidth) {
+        this.canvas.width *= 2;
+      }
+
+      if (this.canvas.height < requiredHeight) {
+        this.canvas.height = requiredHeight;
+      }
+
+      this.ctx.putImageData(imageData, 0, 0);
+    }
+
+    this.ctx.imageSmoothingEnabled = false;
+    this.ctx.drawImage(canvas, this.cursor, 0);
+
+    let rect = this.rects[key] = {
       x: this.cursor,
       y: 0,
       w: canvas.width,
@@ -202,11 +219,7 @@ export class TextureBatch {
     };
 
     this.cursor += canvas.width;
-    this.rects[key] = rect;
-    return rect;
-  }
 
-  get(key: string): Rectangle | undefined {
-    return this.rects[key];
+    return rect;
   }
 }

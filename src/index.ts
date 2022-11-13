@@ -1,5 +1,5 @@
 import { defaultFont } from "./font";
-import { assert, clamp, getKey, lineToPoints, LRUCache, TextureBatch } from "./utils";
+import { assert, clamp, getKey, lineToPoints, TextureCache } from "./utils";
 
 /**
  * Utils.
@@ -263,13 +263,6 @@ let _delta = 0;
  * to retrieve the underlying image synchronously.
  */
 let _images: Record<string, HTMLImageElement> = {};
-
-/**
- * Cache of sprites that were expensive to render. Uses an LRU cache to ensure
- * that the memory can't go out of control if the game is creating lots of
- * dynamic sprites.
- */
-let _sprites = new LRUCache<string, HTMLCanvasElement>(100);
 
 /**
  * List of promises representing assets that need to be resolved before the
@@ -843,7 +836,10 @@ export function line(x1: number, y1: number, x2: number, y2: number, col = _stat
   ctx.restore();
 }
 
-let _stampTextureBatch = new TextureBatch();
+/**
+ * Cache of stamps we've already rendered before.
+ */
+let _stampTextureCache = new TextureCache();
 
 /**
  * Draws a monochromatic 5x5 bit pattern. Useful for drawing particles, icons,
@@ -857,9 +853,8 @@ let _stampTextureBatch = new TextureBatch();
  */
 export function stamp(pattern: number, x: number, y: number, col = _state.color) {
   let key = `${pattern}/${getKey(col)}`;
-  let rect = _stampTextureBatch.get(key);
 
-  if (!rect) {
+  let rect = _stampTextureCache.findOrCreate(key, () => {
     let canvas = document.createElement("canvas");
     canvas.width = canvas.height = 5;
     let ctx = canvas.getContext("2d")!;
@@ -875,11 +870,11 @@ export function stamp(pattern: number, x: number, y: number, col = _state.color)
 
     ctx.fillStyle = col;
     ctx.fill();
-    rect = _stampTextureBatch.add(key, canvas);
-  }
+    return canvas;
+  });
 
   ctx.drawImage(
-    _stampTextureBatch.canvas,
+    _stampTextureCache.canvas,
     rect.x,
     rect.y,
     rect.w,
@@ -991,6 +986,12 @@ export function measure(text: string): Rectangle {
 }
 
 /**
+ * Cache of text that we've already rendered before.
+ */
+let _textTextureCache = new TextureCache();
+document.body.append(_textTextureCache.canvas)
+
+/**
  * Writes text to the canvas using a bitmap font.
  *
  * @param text String of text to write.
@@ -1007,17 +1008,12 @@ export function write(
   shadow = _state.textShadowColor,
 ) {
   let { font } = _state;
-  // Rendering text is an expensive operation (4 draw calls per char when
-  // using shadows), so we can significantly increase performance by
-  // caching the result, then rendering it directly in the future.
   let key = `text:${font.url}/${getKey(color)}/${getKey(shadow)}/${text}`;
-  let canvas = _sprites.get(key);
-  let cursor = _textCursorCache[key];
+  let cursor = _textCursorCache[key] || { x: 0, y: 0 };
 
-  if (!canvas) {
-    canvas = document.createElement("canvas");
-    cursor = _textCursorCache[key] = { x: 0, y: 0 };
-    _sprites.set(key, canvas);
+  let rect = _textTextureCache.findOrCreate(key, () => {
+    let canvas = document.createElement("canvas");
+    _textCursorCache[key] = cursor;
 
     let image = tint(color);
     let imageShadow = tint(shadow || "transparent");
@@ -1057,9 +1053,11 @@ export function write(
 
       cursor.x += font.glyphWidthsTable[char] ?? gw;
     }
-  }
+    return canvas;
+  });
 
-  ctx.drawImage(canvas, x, y);
+  let { x: sx, y: sy, w: sw, h: sh } = rect;
+  ctx.drawImage(_textTextureCache.canvas, sx, sy, sw, sh, x, y, sw, sh);
   _state.textX = x + cursor.x + (font.glyphWidthsTable[" "] ?? font.glyphWidth);
   _state.textY = y + cursor.y;
 }
@@ -1086,11 +1084,16 @@ export function writeLine(
 }
 
 /**
+ * A cache of recolored font images.
+ */
+let _tintCanvasCache: Record<string, HTMLCanvasElement> = {};
+
+/**
  * Creates a recolored version of the current font's image.
  */
 function tint(col: Fill): HTMLCanvasElement {
   let key = `tint:${_state.font.url}/${getKey(col)}`;
-  let canvas = _sprites.get(key);
+  let canvas = _tintCanvasCache[key];
 
   if (!canvas) {
     canvas = document.createElement("canvas");
@@ -1102,7 +1105,7 @@ function tint(col: Fill): HTMLCanvasElement {
     ctx.fillStyle = col;
     ctx.globalCompositeOperation = "source-atop";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    _sprites.set(key, canvas);
+    _tintCanvasCache[key] = canvas;
   }
 
   return canvas;
@@ -1143,7 +1146,10 @@ export function _reset() {
   _stack = [];
   _assets = [];
   _tweens = [];
-  _sprites.clear();
+  _tintCanvasCache = {};
+  _textCursorCache = {};
+  _stampTextureCache.clear();
+  _textTextureCache.clear();
   _down.clear();
   _pressed.clear();
   _released.clear();
