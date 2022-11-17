@@ -83,6 +83,15 @@ test("measure", () => {
   ].map(text => measure(text))).toMatchSnapshot();
 });
 
+test("measure with alternate font", () => {
+  expect([
+    "Hello world!",
+    "!!!",
+    "WWW",
+    "Text with a \nnewline",
+  ].map(text => measure(text, font2))).toMatchSnapshot();
+});
+
 test("writing text", async () => {
   await start({ width: 100, height: 100 });
   write("hello world", 0, 10, "red", "black");

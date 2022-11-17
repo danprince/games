@@ -39,6 +39,35 @@ exports[`measure 1`] = `
 ]
 `;
 
+exports[`measure with alternate font 1`] = `
+[
+  {
+    "h": 6,
+    "w": 65,
+    "x": 0,
+    "y": 0,
+  },
+  {
+    "h": 6,
+    "w": 18,
+    "x": 0,
+    "y": 0,
+  },
+  {
+    "h": 6,
+    "w": 18,
+    "x": 0,
+    "y": 0,
+  },
+  {
+    "h": 12,
+    "w": 67,
+    "x": 0,
+    "y": 0,
+  },
+]
+`;
+
 exports[`nested views 1`] = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAqklEQVR4nO3ZQQ6DMAwEwLTi/19Or1UEFlWd4NKZCxEEg4zwZVsDAAAAAAAAAK7Ui9b6C/1g/X4u2hM1fLz3dp6LntOH47g+65HwLqVtk+pGzT5qag+u8aVoLO2Nnb0/KKp767EFAAAAAADQ8jN6+coHZmf0Z/YtsypTz5ad0ZeJj2dl6tlmZvRlPsYvWZHRlxhZAAAAAAAAAAAAAAAAAAAAAAAAAAAAXOoFBWU137Z0Se8AAAAASUVORK5CYII=`;
 
 exports[`stamp 1`] = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAAc0lEQVR4nO3UOQrAMAwEwJXJ/7/stHYgrpyjmGkWoUawoAQAAAD4kZ701Txs+npmhyNZlXClhKe1rw9g1pKkkhrzXtWc7FbJ/LLWpYwvSykAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACvOwEgqhAG1dFRpwAAAABJRU5ErkJggg==`;

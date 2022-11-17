@@ -963,6 +963,8 @@ export function draw9Slice(
 /**
  * Measure a string of text. Respects linebreaks, but does no wrapping.
  * @param text The text to measure.
+ * @param font The font to use. If no font is provided, then use the current
+ * font.
  * @returns The rectangle size required to render this text.
  */
 export function measure(text: string, font = _state.font): Rectangle {
