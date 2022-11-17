@@ -52,7 +52,7 @@ test("delta", async () => {
   expect(delta()).toBe(20);
 });
 
-test("canvas size", async () => {
+test("start sets canvas size", async () => {
   await start({ width: 110, height: 120 });
   expect(canvas.width).toBe(110);
   expect(canvas.height).toBe(120);
@@ -74,7 +74,7 @@ test("max canvas scale", async () => {
   expect(canvas.style.height).toBe("300px");
 });
 
-test("measure", () => {
+test("measure text", () => {
   expect([
     "Hello world!",
     "!!!",
@@ -83,7 +83,7 @@ test("measure", () => {
   ].map(text => measure(text))).toMatchSnapshot();
 });
 
-test("measure with alternate font", () => {
+test("measure text with alternate font", () => {
   expect([
     "Hello world!",
     "!!!",
@@ -116,12 +116,7 @@ test("writing text in lines", async () => {
   expect(canvas).toMatchSnapshot();
 });
 
-test("writing icons", async () => {
-  await start({ width: 100, height: 100 });
-  write("icon: \x01", 0, 10, "black");
-});
-
-test("alternate fonts", async () => {
+test("writing with alternate fonts", async () => {
   preload(font2);
   await start();
   write("This is the default font", 10, 10);
@@ -176,7 +171,7 @@ test("drawing sprites", async () => {
   expect(canvas).toMatchSnapshot();
 });
 
-test("drawing nine slices", async () => {
+test("drawing nine slice sprites", async () => {
   preload(sprites);
   await start({ width: 100, height: 100 });
   draw9Slice(sprites.nine_slice, 0, 0, 10, 10);
@@ -193,7 +188,7 @@ test("views", async () => {
   expect(canvas).toMatchSnapshot();
 });
 
-test("nested views", async () => {
+test("nesting views", async () => {
   await start({ width: 100, height: 100 });
   view(20, 20);
   write("view 1", 0, 0);
