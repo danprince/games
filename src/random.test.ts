@@ -39,9 +39,9 @@ test("randomElement", () => {
 
 test("shuffle", () => {
   seed(1);
-  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"xhnseukqgtrvypfjliwcdmboza"');
+  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"eosgxyulrhtjnzqfkwicvdmbpa"');
   seed(2);
-  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"vhxkwpnlcmqyjbourfgsetidza"');
+  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"qihlcxromdnwzkbpvsfgtyujea"');
   seed(3);
-  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"grhdwymlsiuzpovntefxcjkqba"');
+  expect(shuffle(ALPHABET).join("")).toMatchInlineSnapshot('"nshilvzgmtudapwxoyefqcjkrb"');
 });

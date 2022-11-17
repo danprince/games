@@ -9,6 +9,9 @@ let _state = Math.ceil(Math.random() * Number.MAX_SAFE_INTEGER);
 export function seed(value: number) {
   assert(value !== 0, "seed value must be non-zero");
   _state = value;
+  // Advancing the internal state once helps avoid generating
+  // an initial zero value for seeds that are close to 0.
+  rand();
 }
 
 /**
