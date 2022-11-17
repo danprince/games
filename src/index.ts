@@ -2,6 +2,11 @@ import { defaultFont } from "./font";
 import { assert, clamp, getKey, lineToPoints, TextureCache } from "./utils";
 
 /**
+ * Re-export randomness functions.
+ */
+export * from "./random";
+
+/**
  * Utils.
  */
 export { assert, clamp };
