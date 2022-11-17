@@ -15,7 +15,10 @@ export function seed(value: number) {
  * Returns a random float between 0 and 1.
  */
 function rand() {
-  _state ^= _state << 13; _state ^= _state >>> 17; _state ^= _state << 5;
+  // Based on xorshift32 https://github.com/bryc/code/blob/master/jshash/PRNGs.md#xorshift
+  _state ^= _state << 13;
+  _state ^= _state >>> 17;
+  _state ^= _state << 5;
   return (_state >>> 0) / 4294967296;
 }
 
