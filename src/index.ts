@@ -989,11 +989,6 @@ export function measure(text: string, font = _state.font): Rectangle {
 }
 
 /**
- * Cache of text that we've already rendered before.
- */
-let _textTextureCache = new TextureCache();
-
-/**
  * Writes text to the canvas using a bitmap font.
  *
  * @param text String of text to write.
@@ -1140,7 +1135,6 @@ export function _reset() {
   _tweens = [];
   _tintCanvasCache = {};
   _stampTextureCache.clear();
-  _textTextureCache.clear();
   _down.clear();
   _pressed.clear();
   _released.clear();
