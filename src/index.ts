@@ -935,7 +935,7 @@ export function draw9Slice(
 
   let sx0 = sx;
   let sx1 = sx0 + left;
-  let sx2 = sw - right;
+  let sx2 = sx0 + sw - right;
   let sy0 = sy;
   let sy1 = sy0 + top;
   let sy2 = sy0 + sh - bottom;
