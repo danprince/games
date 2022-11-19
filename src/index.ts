@@ -5,6 +5,7 @@ import { assert, clamp, getKey, lineToPoints, TextureCache } from "./utils";
  * Re-export randomness functions.
  */
 export * from "./random";
+export * from "./particles";
 
 /**
  * Utils.
