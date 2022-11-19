@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp } from "../src/index";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, cursor } from "../src/index";
 import { font2 } from "./__fixtures__/font2";
+import { font as testFont } from "./__fixtures__/font";
 import * as sprites from "./__fixtures__/sprites";
 
 // JSDOM doesn't support PointerEvent, so use MouseEvent when dispatching in
@@ -128,6 +129,22 @@ test("writing with alternate fonts", async () => {
 
   write("Back to the default font", 10, 30);
 
+  expect(canvas).toMatchSnapshot();
+});
+
+test("font with shaded glyphs", async () => {
+  preload(testFont);
+  await start({ width: 100, height: 100 });
+  font(testFont);
+  write("abc", 0, 0, "red");
+  expect(canvas).toMatchSnapshot();
+});
+
+test("font with precolored glyphs", async () => {
+  preload(testFont);
+  await start({ width: 100, height: 100 });
+  font(testFont);
+  writeLine("\x01\x02\x03\x04\x05\x06");
   expect(canvas).toMatchSnapshot();
 });
 
