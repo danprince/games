@@ -218,7 +218,9 @@ export class TextureCache {
       h: canvas.height,
     };
 
-    this.cursor += canvas.width;
+    // Add 1px padding to prevent a small amount of image bleed that happens
+    // when drawing rotating sprites sometimes.
+    this.cursor += canvas.width + 1;
 
     return rect;
   }
