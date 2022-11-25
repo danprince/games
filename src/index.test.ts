@@ -35,6 +35,10 @@ vi.mock("./__fixtures__/sprites.png", () => ({
   default: readAsDataUrl("./__fixtures__/sprites.png")
 }));
 
+vi.mock("./__fixtures__/font.png", () => ({
+  default: readAsDataUrl("./__fixtures__/font.png"),
+}));
+
 vi.mock("./__fixtures__/font2.png", () => ({
   default: readAsDataUrl("./__fixtures__/font2.png"),
 }));
