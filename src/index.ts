@@ -374,7 +374,7 @@ export function preload(url: string): void;
 /**
  * Wait for a promise to resolve before starting the game.
  */
-export function preload(font: Font): void;
+export function preload(promise: Promise<any>): void;
 
 export function preload(resource: SpriteSheet | Font | string | Promise<any>): void {
   // Handle fonts
