@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, cursor } from "../src/index";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp } from "../src/index";
 import { font2 } from "./__fixtures__/font2";
 import { font as testFont } from "./__fixtures__/font";
 import * as sprites from "./__fixtures__/sprites";
