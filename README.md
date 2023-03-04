@@ -26,6 +26,7 @@ write("Hello, world!", 10, 20, "red", "black");
 ```
 
 ### Sprites
+The `draw` functions expect to work with the sprites format from the [TypeScript Sprites](https://github.com/danprince/aseprite-typescript-sprites) Aseprite extension.
 
 ```ts
 import { preload, draw } from "@danprince/games";
