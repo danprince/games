@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp } from "../src/index";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, drawFlipped } from "../src/index";
 import { font2 } from "./__fixtures__/font2";
 import { font as testFont } from "./__fixtures__/font";
 import * as sprites from "./__fixtures__/sprites";
@@ -189,6 +189,16 @@ test("drawing sprites", async () => {
   await start({ width: 100, height: 100 });
   draw(sprites.green_man, 0, 0);
   draw(sprites.red_man, 10, 20);
+  expect(canvas).toMatchSnapshot();
+});
+
+test("drawing flipped sprites", async () => {
+  preload(sprites);
+  await start({ width: 100, height: 100 });
+  draw(sprites.green_man, 0, 0);
+  drawFlipped(sprites.green_man, 20, 0, true, false);
+  drawFlipped(sprites.green_man, 40, 0, false, true);
+  drawFlipped(sprites.green_man, 60, 0, true, true);
   expect(canvas).toMatchSnapshot();
 });
 
