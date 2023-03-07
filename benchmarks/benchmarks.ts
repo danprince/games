@@ -1,4 +1,4 @@
-import { canvas, clear, delta, draw, draw9Slice, fillRect, line, pointer, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
+import { canvas, clear, delta, draw, draw9Slice, drawFlipped, fillRect, line, pointer, preload, pressed, stamp, start, strokeRect, write, _reset } from "@danprince/games";
 import * as sprites from "../examples/sprites";
 
 type BenchmarkFn = () => void;
@@ -157,6 +157,16 @@ benchmarks = [
     let x = Math.random() * canvas.width;
     let y = Math.random() * canvas.height;
     draw(sprite, x, y);
+  },
+
+  function benchmarkFlippedSprites() {
+    count ||= 9_000;
+    let sprite = randomItem(spritesArray);
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height;
+    let flipX = randomItem([true, false]);
+    let flipY = randomItem([true, false]);
+    drawFlipped(sprite, x, y, flipX, flipY);
   },
 
   function benchmarkScaledSprites() {

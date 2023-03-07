@@ -904,6 +904,31 @@ export function draw(sprite: Sprite, x: number, y: number, w = sprite.w, h = spr
 }
 
 /**
+ * Draws a sprite at the given coordinates, optionally flipped on either axis.
+ */
+export function drawFlipped(
+  sprite: Sprite,
+  x: number,
+  y: number,
+  flipX: boolean,
+  flipY: boolean,
+) {
+  // Stay on the fast path if possible. Doing the transforms below is about 30%
+  // slower than drawing directly. It would be possible to match performance by
+  // pre-rendering and flipping but this would also be a lot of extra code.
+  if (!flipX && !flipY) return draw(sprite, x, y);
+
+  let scaleX = flipX ? -1 : 1;
+  let scaleY = flipY ? -1 : 1;
+  let translateX = flipX ? x + sprite.w : x;
+  let translateY = flipY ? y + sprite.h : y;
+  ctx.save();
+  ctx.transform(scaleX, 0, 0, scaleY, translateX, translateY);
+  draw(sprite, 0, 0);
+  ctx.restore();
+}
+
+/**
  * Draws a 9-slice sprite.
  */
 export function draw9Slice(
