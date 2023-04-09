@@ -1231,4 +1231,5 @@ export async function start({
   await waitForAssets();
   addEventListeners();
   if (loop) startLoop(loop);
+  document.body.append(canvas);
 }
