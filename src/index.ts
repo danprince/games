@@ -900,7 +900,7 @@ export function stamp(pattern: number, x: number, y: number, col = _state.color)
 export function draw(sprite: Sprite, x: number, y: number, w = sprite.w, h = sprite.h) {
   let { x: sx, y: sy, w: sw, h: sh } = sprite;
   let img = imageByUrl(sprite.url);
-  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+  ctx.drawImage(img, sx, sy, sw, sh, Math.round(x), Math.round(y), w, h);
 }
 
 /**
