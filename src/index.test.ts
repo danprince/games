@@ -63,6 +63,11 @@ test("start sets canvas size", async () => {
   expect(canvas.height).toBe(120);
 });
 
+test("start appends canvas to body", async () => {
+  await start({ width: 110, height: 120 });
+  expect(document.body.children[0]).toBe(canvas);
+});
+
 test("automatic canvas scale", async () => {
   window.innerWidth = 1000;
   window.innerHeight = 1000;
