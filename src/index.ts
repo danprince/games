@@ -920,8 +920,8 @@ export function drawFlipped(
 
   let scaleX = flipX ? -1 : 1;
   let scaleY = flipY ? -1 : 1;
-  let translateX = flipX ? x + sprite.w : x;
-  let translateY = flipY ? y + sprite.h : y;
+  let translateX = Math.round(flipX ? x + sprite.w : x);
+  let translateY = Math.round(flipY ? y + sprite.h : y);
   ctx.save();
   ctx.transform(scaleX, 0, 0, scaleY, translateX, translateY);
   draw(sprite, 0, 0);
