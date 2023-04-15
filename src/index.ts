@@ -680,6 +680,9 @@ function onPointerMove(event: PointerEvent) {
 function onPointerDown(event: PointerEvent) {
   _down.add(event.button);
   _pressed.add(event.button);
+  // Mobile devices don't see pointer move events between taps, so make sure
+  // down events are also updating the pointer coordinates.
+  onPointerMove(event);
 }
 
 function onPointerUp(event: PointerEvent) {
