@@ -220,7 +220,7 @@ interface Tween {
   elapsed: number;
   duration: number;
   easing: Easing;
-  callback(t: number): void;
+  step(t: number): void;
   done(): void;
 }
 
@@ -745,9 +745,15 @@ export function tween<
 >(
   object: Target,
   to: Partial<Props>,
-  duration: number,
-  easing: Easing = easeLinear,
-  callback: (t: number) => void = () => {},
+  {
+    duration,
+    easing = easeLinear,
+    step = () => {},
+  }: {
+    duration: number;
+    easing?: Easing;
+    step?(t: number): void;
+  }
 ): Promise<void> {
   return new Promise(resolve => {
     let keys = Object.keys(to);
@@ -765,7 +771,7 @@ export function tween<
       duration,
       elapsed: 0,
       easing,
-      callback,
+      step,
       done: resolve,
     });
   });
@@ -787,7 +793,7 @@ function updateTweens() {
       tween.object[key] = value;
     }
 
-    tween.callback(t);
+    tween.step(t);
 
     if (tween.elapsed >= tween.duration) {
       tween.done();
