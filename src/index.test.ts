@@ -330,7 +330,7 @@ test("pointer coordinates", async () => {
 test("tweens", async () => {
   await start();
   let object = { a: 0 };
-  let promise = tween(object, { a: 100 }, 1000);
+  let promise = tween(object, { a: 100 }, { duration: 1000 });
   frame(100);
   expect(object.a).toBe(10);
   frame(500);
@@ -338,6 +338,36 @@ test("tweens", async () => {
   frame(500);
   expect(object.a).toBe(100);
   expect(promise).resolves.toBe(undefined);
+});
+
+test("tween with custom easing", async () => {
+  await start();
+  let object = { a: 0 };
+  let promise = tween(
+    object,
+    { a: 100 },
+    { duration: 1000, easing: t => (t < 0.5 ? 0 : 1) },
+  );
+  frame(100);
+  expect(object.a).toBe(0);
+  frame(500);
+  expect(object.a).toBe(100);
+  expect(promise).resolves.toBe(undefined);
+});
+
+test("tween with step function", async () => {
+  await start();
+  let object = { a: 0 };
+  let step = vi.fn();
+  tween(
+    object,
+    { a: 100 },
+    { duration: 1000, step },
+  );
+  frame(100);
+  expect(step).toHaveBeenCalledWith(0.1);
+  frame(100);
+  expect(step).toHaveBeenCalledWith(0.2);
 });
 
 test("delay", async () => {
