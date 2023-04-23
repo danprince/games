@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 import { join } from "node:path";
 import { readFileSync } from "node:fs";
-import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, drawFlipped } from "../src/index";
+import { bounds, canvas, end, global, local, measure, start, view, _update, _reset, down, pressed, released, Buttons, pointer, tween, delta, delay, write, draw, draw9Slice, font, preload, restore, save, writeLine, fillRect, color, strokeRect, line, stamp, drawFlipped, cancelTweens } from "../src/index";
 import { font2 } from "./__fixtures__/font2";
 import { font as testFont } from "./__fixtures__/font";
 import * as sprites from "./__fixtures__/sprites";
@@ -368,6 +368,39 @@ test("tween with step function", async () => {
   expect(step).toHaveBeenCalledWith(0.1);
   frame(100);
   expect(step).toHaveBeenCalledWith(0.2);
+});
+
+test("cancel tweens", async () => {
+  await start();
+
+  let object = { a: 0, b: 0, c: 0 };
+  let step = vi.fn();
+
+  tween(
+    object,
+    { a: 100 },
+    { duration: 100, id: "t", step },
+  );
+
+  tween(
+    object,
+    { b: 100 },
+    { duration: 100, id: "t" },
+  );
+
+  tween(
+    object,
+    { c: 100 },
+    { duration: 100 },
+  );
+
+  frame(50);
+  expect(object).toEqual({ a: 50, b: 50, c: 50 });
+  cancelTweens("t");
+  expect(object).toEqual({ a: 100, b: 100, c: 50 });
+  frame(50);
+  expect(object).toEqual({ a: 100, b: 100, c: 100 });
+  expect(step).toHaveBeenCalledTimes(2);
 });
 
 test("delay", async () => {

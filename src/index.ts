@@ -216,6 +216,7 @@ interface Tween {
   object: Record<any, any>;
   to: Record<any, number>;
   from: Record<any, number>;
+  id: string | number | undefined;
   keys: string[];
   elapsed: number;
   duration: number;
@@ -734,9 +735,11 @@ export let easeOutBack: Easing = t =>
 /**
  * @param object Object to tween
  * @param to Values to tween to
- * @param duration Length of tween in milliseconds
- * @param easing Easing timing function
- * @param callback Callback called once per frame with the tween value.
+ * @param config
+ * @param config.duration Length of tween in milliseconds
+ * @param config.easing Easing timing function
+ * @param config.step Callback called once per frame with the tween value.
+ * @param config.id Identifier that can be used to cancel this tween.
  * @returns A promise that resolves when the tween is done.
  */
 export function tween<
@@ -749,10 +752,12 @@ export function tween<
     duration,
     easing = easeLinear,
     step = () => {},
+    id,
   }: {
     duration: number;
     easing?: Easing;
     step?(t: number): void;
+    id?: string | number;
   }
 ): Promise<void> {
   return new Promise(resolve => {
@@ -767,6 +772,7 @@ export function tween<
       object,
       to: to as Tween["to"],
       from,
+      id,
       keys,
       duration,
       elapsed: 0,
@@ -774,6 +780,24 @@ export function tween<
       step,
       done: resolve,
     });
+  });
+}
+
+/**
+ * Cancels all tweens with a given ID.
+ * @param id The identifier for the tweens to cancel.
+ */
+export function cancelTweens(id: string | number) {
+  _tweens = _tweens.filter(tween => {
+    let cancelled = tween.id === id;
+
+    if (cancelled) {
+      tween.step(1);
+      tween.done();
+      Object.assign(tween.object, tween.to);
+    }
+
+    return !cancelled;
   });
 }
 
